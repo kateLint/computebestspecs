@@ -1,104 +1,227 @@
-# ComputeBestSpecs — Workload Compatibility & Spec Recommendation Platform
+<div align="center">
 
-A production-ready web application and deterministic compatibility engine that performs bidirectional evaluation between PC hardware and multi-application software workflows.
+# ComputeBestSpecs
 
----
+### Find the right computer for what you actually do.
 
-## 1. Project Purpose & Architecture
+Deterministic PC compatibility, multi-app workload modeling, upgrade simulation,
+hardware recommendations, and local-AI sizing—built around explainable results.
 
-Traditional system requirements checkers rely on naive comparisons like `userRam >= minRam` and evaluate applications in isolation. In reality, modern users multitask between IDEs, emulators, browsers, design tools, and local servers simultaneously.
+[![Next.js](https://img.shields.io/badge/Next.js-14.2-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-SQLite-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Tests](https://img.shields.io/badge/tests-Vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Status](https://img.shields.io/badge/status-active%20development-2563EB)](#project-status)
 
-**ComputeBestSpecs** operates as a **Workload Compatibility & Spec Engine**:
-- **Mode A (I have a computer):** Evaluates whether an existing PC profile (CPU, GPU, RAM, Storage, OS) can handle a simultaneous software stack, pinpointing bottlenecks and recommending high-impact upgrades.
-- **Mode B (I know which software I need):** Computes combined concurrent memory, CPU throughput, and VRAM demands to construct 3 tailored hardware tiers: *Minimum*, *Recommended*, and *Professional / Ideal*.
+[Quick start](#quick-start) · [Product flows](#product-flows) · [Architecture](#architecture) · [Trust model](#trust-model)
 
-### Key Design Principles
-1. **Deterministic Logic:** Scoring and recommendations are 100% mathematical and source-backed. No LLMs are in the critical scoring path.
-2. **Workload Concurrency Model:** Accounts for foreground ($1.0$), background ($0.65$), and occasional ($0.35$) weights, quantity of virtual devices/containers, OS reserve ($2.0-2.5\text{GB}$), background process buffer ($1.5\text{GB}$), and $15\%$ safety headroom.
-3. **Bottleneck-Aware Scoring ($0-100$):** Critical component deficiencies (such as memory pressure or missing CUDA/VRAM) apply progressive penalties rather than being masked by high CPU scores.
-4. **Result Permanence:** Every evaluated setup generates an immutable snapshot with `engineVersion` and `dataRevision` on shareable permalinks (`/results/{publicId}`).
-5. **Data Provenance:** Requirements are verified against official vendor documentation, with confidence levels transparently displayed.
+<br />
 
----
+<a href="docs/assets/readme/product-tour.mp4">
+  <img src="docs/assets/readme/product-tour.gif" alt="ComputeBestSpecs product tour showing the home page, compatibility results, and Local AI sizing engine" width="900" />
+</a>
 
-## 2. Tech Stack
+<sub>▶ Click the preview to open the MP4 product tour.</sub>
 
-- **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript (Strict mode)
-- **Database & ORM:** Prisma with SQLite (zero-config local) & PostgreSQL (Docker/production)
-- **Validation:** Zod schemas
-- **Styling:** Tailwind CSS with modern dark mode and glassmorphism
-- **Testing:** Vitest unit & integration test suites
-- **Icons:** Lucide React
+</div>
 
 ---
 
-## 3. Quickstart & Local Setup
+## Why ComputeBestSpecs?
+
+Traditional requirement checkers evaluate one application at a time and reduce a
+computer to a few minimum numbers. Real workloads are concurrent: an IDE, browser,
+containers, emulators, creative tools, and local AI may all compete for memory and
+compute at once.
+
+ComputeBestSpecs models that combined workload and answers practical questions:
+
+- Can this computer run my actual mix of applications and games?
+- What is the primary bottleneck?
+- Which upgrade creates the largest improvement?
+- What hardware should I buy for the next several years?
+- Which model, quantization, and context size fit in local GPU memory?
+- How do as many as three computers compare under the same workload?
+
+The scoring path is deterministic. AI-style input helpers may assist with parsing or
+explanation, but they do not author compatibility scores.
+
+## Product flows
+
+| Goal | Route | What the user does | What the product returns |
+|---|---|---|---|
+| Check an existing PC | `/check` | Enter hardware, choose applications, and select concurrent or isolated usage | Match score, limiting component, resource pressure, upgrade simulation, evidence, and a shareable result |
+| Find a computer | `/recommend` | Choose or describe a workload, then set form factor, OS, budget, and longevity | Minimum, balanced, and high-headroom target specifications with trade-offs |
+| Size local AI | `/ai` | Select a model, accelerator, quantization, batch size, and context length | VRAM allocation, fit status, estimated throughput, precision alternatives, and local-versus-cloud estimates |
+| Compare systems | `/compare` | Save up to three evaluated systems in the browser | A side-by-side matrix recalculated against one shared workload |
+| Explore requirements | `/software` | Browse and filter the software catalog | Platform support, minimum and recommended requirements, workloads, provenance, and freshness metadata |
+| Evaluate personal fit | `/fit` | Describe needs and select target hardware | Capability fit, execution strategy, limitations, and experience-oriented guidance |
+
+```mermaid
+flowchart LR
+    A[Your hardware or needs] --> B[Workload model]
+    B --> C[Deterministic capability engine]
+    C --> D[Compatibility and bottlenecks]
+    D --> E[Upgrade, buy, or compare]
+```
+
+## Interface
+
+### Start from the decision—not from a wall of specifications
+
+![ComputeBestSpecs home page with primary paths for checking a computer, finding a computer, and sizing Local AI](docs/assets/readme/home.png)
+
+### See the verdict, limiting factor, and next action first
+
+![Compatibility result showing a match score, RAM bottleneck, and simulated upgrade action](docs/assets/readme/compatibility-results.png)
+
+### Inspect the math behind local inference
+
+![Local AI sizing engine with model, GPU, quantization, context, VRAM, throughput, and ROI calculations](docs/assets/readme/local-ai.png)
+
+## Current catalog coverage
+
+The canonical in-repository catalogs currently contain:
+
+| Catalog | Entries |
+|---|---:|
+| Software and game profiles | 30 |
+| CPUs | 29 |
+| GPUs | 32 |
+| Open-weight AI models | 23 |
+| AI accelerators | 24 |
+
+Coverage includes creative applications, development tools, IDEs, browsers,
+virtualization, 3D and game engines, CAD/engineering tools, games, audio,
+streaming, productivity, and local-AI runtimes.
+
+Catalog entries can carry source records, retrieval dates, confidence states,
+platform support, workload profiles, and versioned requirements. Missing data
+should remain unknown rather than becoming a fabricated requirement.
+
+## Core capabilities
+
+- Multi-application concurrency and OS-reserve modeling
+- CPU, GPU, RAM, VRAM, storage, architecture, API, and virtualization checks
+- Bottleneck-aware scoring with structured diagnostic codes
+- Counterfactual RAM, GPU, CPU, and storage upgrade simulation
+- Three-tier hardware recommendation generation
+- Local LLM weight, KV-cache, runtime-overhead, and bandwidth calculations
+- Quantization comparison from FP16 through low-bit formats
+- Anonymous browser-local comparison for up to three systems
+- Immutable public result snapshots with engine and catalog version metadata
+- Hardware and software normalization with ambiguity states
+- Privacy-aware analytics, error reporting, consent, and payload redaction
+- Dataset-health metrics, ingestion staging, promotion gates, and golden tests
+
+## Architecture
+
+```text
+app/                         Next.js routes and API handlers
+components/                  Product UI, navigation, results, comparison, consent
+features/                    Feature-oriented selectors and recommendation cards
+lib/domain/                  Canonical hardware, software, evaluation, and provenance types
+lib/engine/                  Deterministic evaluation, rules, confidence, trace, and recommendations
+lib/data/                    Canonical hardware and software catalogs
+lib/ai/                      AI model catalog and local-inference sizing math
+lib/comparison/              Versioned browser-local comparison storage and analysis
+lib/observability/           Analytics, consent, logging, redaction, and error reporting
+services/                    Normalization, ingestion, recommendations, sharing, and background jobs
+prisma/                      Database schema and seed data
+tests/unit/                  Domain, engine, security, privacy, and service tests
+tests/golden/                Golden scenarios and combinatorial regression corpus
+```
+
+The project uses a shared deterministic domain engine from both client-facing
+experiences and API routes. Runtime boundaries are validated with Zod, while Prisma
+provides the persisted catalog and immutable evaluation snapshots.
+
+## Trust model
+
+ComputeBestSpecs is designed around several invariants:
+
+1. **Missing is not a default.** Unknown, ambiguous, stale, and conflicting data are distinct states.
+2. **Results come from code.** Compatibility and recommendations are calculated by deterministic rules.
+3. **Better hardware must not score worse.** Monotonicity and property tests protect upgrade behavior.
+4. **Evidence stays attached.** Results can include sources, catalog revisions, engine versions, and calculation traces.
+5. **Untrusted input is validated.** API payloads and persisted browser data cross runtime schemas.
+6. **Private comparisons stay local.** Saved comparison profiles use browser storage and are capped at three systems.
+7. **Telemetry excludes raw specifications.** Analytics and errors pass through typed facades and redaction.
+
+Real-world performance can still vary with cooling, power limits, drivers, firmware,
+background activity, and project-specific behavior. Results are decision support—not
+a substitute for device-specific benchmarks.
+
+## Quick start
 
 ### Prerequisites
-- Node.js 18+ (tested on Node 20 / 24)
-- npm or yarn
 
-### Installation
+- Node.js 20 or newer
+- npm
+
+### Local development
+
 ```bash
-# 1. Clone & install dependencies
-npm install
+git clone https://github.com/kateLint/computebestspecs.git
+cd computebestspecs
 
-# 2. Setup environment variables
+npm install
 cp .env.example .env
 
-# 3. Initialize database & seed verified hardware/software catalog
-npx prisma db push
+npm run prisma:generate
+npm run prisma:db:push
 npm run prisma:seed
-
-# 4. Start development server
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
 
----
+Open [http://localhost:3000](http://localhost:3000).
 
-## 4. Testing & Verification Commands
+### Verification
 
 ```bash
-# Run unit & engine tests
-npm test
-
-# Run TypeScript typecheck
 npm run typecheck
-
-# Run production build
+npm test
 npm run build
 ```
 
----
+Database-backed tests require `DATABASE_URL` and an initialized schema.
 
-## 5. Docker Deployment
+## API surface
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/api/compatibility/evaluate` | Evaluate hardware against selected workloads and persist a result snapshot |
+| `POST` | `/api/recommendations` | Generate workload-driven target specifications |
+| `GET` | `/api/hardware/search` | Search normalized CPU or GPU records |
+| `GET` | `/api/software/search` | Search software and workload profiles |
+| `GET` | `/api/results/{publicId}` | Retrieve a public immutable evaluation snapshot |
+| `GET` | `/api/health` | Check application and database health |
+| `GET` | `/api/admin/metrics` | Read dataset and evaluation health metrics |
+
+## Docker
 
 ```bash
-# Build and launch with Docker Compose
 docker compose up --build
 ```
-The application will be accessible at `http://localhost:3000`.
 
----
+The application is exposed on `http://localhost:3000`.
 
-## 6. API Endpoints
+## Documentation
 
-- `POST /api/compatibility/evaluate` — Evaluates PC against selected workloads; returns score, bottlenecks, upgrades, and public snapshot ID.
-- `POST /api/recommendations` — Generates 3-tier hardware recommendations for selected applications.
-- `GET /api/hardware/search?type=cpu|gpu&q={query}` — Autocomplete search across hardware catalog.
-- `GET /api/software/search?q={query}` — Software catalog and workload profile retrieval.
-- `GET /api/results/{publicId}` — Retrieves immutable saved evaluation snapshot.
-- `GET /api/health` — System and database health status.
+- [Workflow and user journeys](docs/WORKFLOW_AND_USER_JOURNEYS.md)
+- [Engineering roadmap](docs/ENGINEERING_ROADMAP.md)
+- [Privacy and data inventory](docs/PRIVACY_AND_DATA_INVENTORY.md)
+- [Production observability guide](docs/PRODUCTION_OBSERVABILITY_GUIDE.md)
+- [Monetization and affiliate foundation](docs/MONETIZATION_AND_AFFILIATE_FOUNDATION.md)
 
----
+## Project status
 
-## 7. Data Provenance & Confidence Policy
+ComputeBestSpecs is under active development. The deterministic engine, primary
+product routes, local comparison, catalogs, observability foundation, and automated
+test corpus are implemented. Before a public production launch, complete the release
+gates for reproducible installs, CI, linting, dependency security, end-to-end browser
+testing, catalog verification, accessibility, and real-device calibration.
 
-Software requirements are categorized by source:
-1. **Official Vendor Documentation:** High confidence (e.g. Adobe Help, Google Android Studio Guide, Blender.org).
-2. **Benchmark Providers & Release Notes:** High/Medium confidence.
-3. **Manual / Development Fixtures:** Explicitly tagged as `TEST_DATA_ONLY` or `fixture`.
-
-*Unverified / Manual Hardware:* If a user specifies custom hardware outside the catalog, the engine calculates estimates and transparently lowers confidence rating.
+Contributions and issue reports are welcome. Please include reproducible input,
+expected behavior, actual behavior, and—when reporting a compatibility result—the
+engine and catalog versions shown in the result.
