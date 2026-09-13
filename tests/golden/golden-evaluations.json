@@ -1,0 +1,43 @@
+{
+  "version": "2026.09-v1",
+  "scenarios": [
+    {
+      "name": "Mid-range Developer Laptop Bottleneck Scenario",
+      "hardware": {
+        "cpu": { "model": "AMD Ryzen 5 5600H", "architecture": "x86_64", "performanceScore": 68, "laptopVariant": true },
+        "gpu": { "model": "NVIDIA GeForce RTX 3050 Laptop GPU", "type": "dedicated", "performanceScore": 55, "vramGb": 4 },
+        "ram": { "totalGb": 16 },
+        "storage": [{ "type": "NVME_SSD", "totalGb": 512, "freeGb": 200 }],
+        "os": { "family": "windows", "architecture": "x86_64" },
+        "architecture": "x86_64",
+        "deviceType": "laptop",
+        "supportsVirtualization": true
+      },
+      "expected": {
+        "compatibilityStatus": "compatible",
+        "performanceTier": "recommended",
+        "primaryBottleneckComponent": "memory",
+        "expectedUpgradeComponent": "memory",
+        "minExpectedScore": 60,
+        "maxExpectedScore": 85
+      }
+    },
+    {
+      "name": "OS Incompatibility Scenario",
+      "hardware": {
+        "cpu": { "model": "Intel Core i9-14900K", "architecture": "x86_64", "performanceScore": 98 },
+        "gpu": { "model": "NVIDIA GeForce RTX 4090", "type": "dedicated", "performanceScore": 99, "vramGb": 24 },
+        "ram": { "totalGb": 64 },
+        "storage": [{ "type": "NVME_SSD", "totalGb": 2000 }],
+        "os": { "family": "linux", "architecture": "x86_64" },
+        "architecture": "x86_64",
+        "deviceType": "desktop"
+      },
+      "expected": {
+        "compatibilityStatus": "incompatible",
+        "performanceTier": "poor",
+        "score": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,533 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   1. INVARIANT STRUCTURAL DESIGN TOKENS
+   ========================================================================== */
+:root {
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Shape & Radius Tokens */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Motion Timing Tokens (Restrained, predictable transitions) */
+  --motion-fast: 150ms;
+  --motion-state: 240ms;
+  --motion-explain: 480ms;
+  --motion-reveal: 850ms;
+  --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout & Navigation Tokens */
+  --content-max: 1440px;
+  --reading-max: 760px;
+  --mobile-nav-height: 64px;
+  --sticky-dock-height: 72px;
+
+  /* Safe Area Insets (All 4 device orientations) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
+  /* Z-Index Scale Hierarchy */
+  --z-base: 0;
+  --z-sticky: 20;
+  --z-nav: 30;
+  --z-dock: 40;
+  --z-popover: 50;
+  --z-modal: 60;
+  --z-toast: 70;
+
+  /* Fluid Typography Clamps & Weights */
+  --font-hero: clamp(2rem, 5vw + 1rem, 3.75rem);
+  --font-h1: clamp(1.75rem, 3vw + 0.75rem, 2.5rem);
+  --font-h2: clamp(1.25rem, 2vw + 0.5rem, 1.75rem);
+  --font-score: clamp(3.5rem, 8vw + 1rem, 5.5rem);
+  --font-body: 1rem;
+  --font-small: 0.875rem;
+  --font-caption: 0.75rem;
+  --line-body: 1.5;
+  --line-heading: 1.2;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Resource Identity Tokens (NEVER used for status) */
+  --res-cpu: #2563EB;        /* Blue */
+  --res-gpu: #7C3AED;        /* Violet */
+  --res-ram: #0891B2;        /* Cyan */
+  --res-vram: #9333EA;       /* Purple */
+  --res-storage: #0D9488;    /* Teal */
+  --res-platform: #475569;   /* Slate */
+}
+
+/* ==========================================================================
+   2. LIGHT THEME TOKENS (Default / Light-First Canonical Source)
+   ========================================================================== */
+:root,
+html[data-theme="light"] {
+  color-scheme: light;
+
+  /* Surface & Base Canvas */
+  --bg-main: #FFFEFC;
+  --bg-secondary: #F6F3EE;
+  --card-main: #FFFEFC;
+  --card-elevated: #F0F2F1;
+  --card-subtle: #F6F3EE;
+  --overlay-scrim: rgba(34, 50, 74, 0.72);
+  
+  --border-subtle: #D7E1EA;
+  --border-strong: #C3D1DF;
+  
+  --text-strong: #22324A;
+  --text-body: #536783;
+  --text-muted: #7D8CA3;
+  --text-inverse: #FFFEFC;
+
+  /* Foreground Tokens on Colored Surfaces */
+  --on-brand: #FFFFFF;
+  --on-success: #FFFFFF;
+  --on-warning: #22324A;
+  --on-danger: #FFFFFF;
+  --on-elevated: #22324A;
+  
+  /* Brand Tokens */
+  --brand-primary: #126BD6;
+  --brand-primary-hover: #0F58B0;
+  --brand-primary-pressed: #0C468C;
+  --brand-cyan: #1689A8;
+  --brand-violet: #7046D9;
+  --accent-selection: #FF761A;
+  --focus-ring: #126BD6;
+
+  /* State Glow Tokens */
+  --glow-brand: rgba(18, 107, 214, 0.35);
+  --glow-violet: rgba(112, 70, 217, 0.35);
+  --glow-success: rgba(5, 150, 105, 0.35);
+  --glow-warning: rgba(217, 119, 6, 0.35);
+  --glow-danger: rgba(220, 38, 38, 0.35);
+  --glow-cyan: rgba(22, 137, 168, 0.35);
+  --glow-unknown: rgba(125, 140, 163, 0.25);
+  
+  /* Semantic Status Tokens */
+  --status-success: #059669;
+  --status-success-bg: #ECFDF5;
+  --status-success-border: #A7F3D0;
+
+  --status-recommended: #126BD6;
+  --status-recommended-bg: #EFF6FF;
+  --status-recommended-border: #BFDBFE;
+
+  --status-warning: #D97706;
+  --status-warning-bg: #FFFBEB;
+  --status-warning-border: #FDE68A;
+
+  --status-danger: #DC2626;
+  --status-danger-bg: #FEF2F2;
+  --status-danger-border: #FECACA;
+
+  --status-unknown: #7D8CA3;
+  --status-unknown-bg: #F6F3EE;
+  --status-unknown-border: #D7E1EA;
+
+  /* Semantic Status Aliases (Synchronized) */
+  --status-excellent: var(--status-success);
+  --status-excellent-bg: var(--status-success-bg);
+  --status-excellent-border: var(--status-success-border);
+
+  --status-borderline: var(--status-warning);
+  --status-borderline-bg: var(--status-warning-bg);
+  --status-borderline-border: var(--status-warning-border);
+
+  --status-incompatible: var(--status-danger);
+  --status-incompatible-bg: var(--status-danger-bg);
+  --status-incompatible-border: var(--status-danger-border);
+  
+  --semantic-success: var(--status-success);
+  --semantic-warning: var(--status-warning);
+  --semantic-critical: var(--status-danger);
+  --semantic-unknown: var(--status-unknown);
+
+  /* Interactive Control & Form Tokens */
+  --control-bg: #FFFEFC;
+  --control-bg-hover: #F6F3EE;
+  --control-bg-active: #F0F2F1;
+  --control-border: #C3D1DF;
+  --control-border-hover: #7D8CA3;
+  --control-disabled-bg: #F0F2F1;
+  --control-disabled-text: #7D8CA3;
+  --control-placeholder: #7D8CA3;
+
+  /* Links */
+  --link: #126BD6;
+  --link-hover: #0F58B0;
+  --link-visited: #126BD6;
+
+  /* Overlays, Modals & Tooltips */
+  --modal-bg: #FFFEFC;
+  --popover-bg: #FFFEFC;
+  --tooltip-bg: #22324A;
+  --tooltip-text: #FFFEFC;
+
+  /* Tables */
+  --table-header-bg: #F6F3EE;
+  --table-row-hover: #F0F2F1;
+  --table-divider: #D7E1EA;
+  --table-selected: #EFF6FF;
+
+  /* Navigation */
+  --nav-bg: rgba(255, 254, 252, 0.88);
+  --nav-border: #D7E1EA;
+  --nav-text: #536783;
+  --nav-text-active: #22324A;
+  --nav-active-bg: #F0F2F1;
+
+  /* Skeleton Loading */
+  --skeleton-base: #D7E1EA;
+  --skeleton-highlight: #F0F2F1;
+
+  /* Text Selection */
+  --selection-bg: rgba(255, 118, 26, 0.22);
+  --selection-text: #22324A;
+
+  /* Disabled State */
+  --disabled-bg: #F0F2F1;
+  --disabled-border: #D7E1EA;
+  --disabled-text: #7D8CA3;
+  --disabled-opacity: 0.6;
+
+  /* Elevation Shadows */
+  --shadow-card: 0 1px 3px 0 rgba(34, 50, 74, 0.05), 0 1px 2px -1px rgba(34, 50, 74, 0.05);
+  --shadow-elevated: 0 10px 15px -3px rgba(34, 50, 74, 0.07), 0 4px 6px -4px rgba(34, 50, 74, 0.03);
+  --shadow-overlay: 0 20px 25px -5px rgba(34, 50, 74, 0.14), 0 8px 10px -6px rgba(34, 50, 74, 0.08);
+}
+
+/* ==========================================================================
+   3. DARK THEME TOKENS (Canonical html[data-theme="dark"])
+   ========================================================================== */
+html[data-theme="dark"],
+html.dark {
+  color-scheme: dark;
+
+  /* Surface & Base Canvas */
+  --bg-main: #0B0F17;
+  --bg-secondary: #101620;
+  --card-main: #151C27;
+  --card-elevated: #192231;
+  --card-subtle: #121924;
+  --overlay-scrim: rgba(0, 0, 0, 0.72);
+  
+  --border-subtle: #263244;
+  --border-strong: #334155;
+  
+  --text-strong: #F8FAFC;
+  --text-body: #B7C2D0;
+  --text-muted: #778499;
+  --text-inverse: #0B0F17;
+
+  /* Foreground Tokens on Colored Surfaces */
+  --on-brand: #0B0F17;
+  --on-success: #0B0F17;
+  --on-warning: #0B0F17;
+  --on-danger: #0B0F17;
+  --on-elevated: #F8FAFC;
+  
+  /* Brand Tokens */
+  --brand-primary: #60A5FA;
+  --brand-primary-hover: #93C5FD;
+  --brand-primary-pressed: #3B82F6;
+  --brand-cyan: #22D3EE;
+  --brand-violet: #A78BFA;
+  --focus-ring: #60A5FA;
+
+  /* State Glow Tokens (Dark Mode) */
+  --glow-brand: rgba(96, 165, 250, 0.45);
+  --glow-violet: rgba(167, 139, 250, 0.45);
+  --glow-success: rgba(52, 211, 153, 0.45);
+  --glow-warning: rgba(251, 191, 36, 0.45);
+  --glow-danger: rgba(251, 113, 133, 0.45);
+  --glow-cyan: rgba(34, 211, 238, 0.45);
+  --glow-unknown: rgba(130, 145, 167, 0.35);
+  
+  /* Semantic Status Tokens */
+  --status-success: #34D399;
+  --status-success-bg: rgba(52, 211, 153, 0.15);
+  --status-success-border: rgba(52, 211, 153, 0.3);
+
+  --status-recommended: #60A5FA;
+  --status-recommended-bg: rgba(96, 165, 250, 0.15);
+  --status-recommended-border: rgba(96, 165, 250, 0.3);
+
+  --status-warning: #FBBF24;
+  --status-warning-bg: rgba(251, 191, 36, 0.15);
+  --status-warning-border: rgba(251, 191, 36, 0.3);
+
+  --status-danger: #FB7185;
+  --status-danger-bg: rgba(251, 113, 133, 0.15);
+  --status-danger-border: rgba(251, 113, 133, 0.3);
+
+  --status-unknown: #8291A7;
+  --status-unknown-bg: rgba(130, 145, 167, 0.15);
+  --status-unknown-border: rgba(130, 145, 167, 0.3);
+
+  /* Semantic Status Aliases */
+  --status-excellent: var(--status-success);
+  --status-excellent-bg: var(--status-success-bg);
+  --status-excellent-border: var(--status-success-border);
+
+  --status-borderline: var(--status-warning);
+  --status-borderline-bg: var(--status-warning-bg);
+  --status-borderline-border: var(--status-warning-border);
+
+  --status-incompatible: var(--status-danger);
+  --status-incompatible-bg: var(--status-danger-bg);
+  --status-incompatible-border: var(--status-danger-border);
+
+  --semantic-success: var(--status-success);
+  --semantic-warning: var(--status-warning);
+  --semantic-critical: var(--status-danger);
+  --semantic-unknown: var(--status-unknown);
+
+  /* Resource Identity Overrides for Dark Mode */
+  --res-cpu: #60A5FA;
+  --res-gpu: #A78BFA;
+  --res-ram: #22D3EE;
+  --res-vram: #C084FC;
+  --res-storage: #2DD4BF;
+  --res-platform: #8291A7;
+
+  /* Interactive Control & Form Tokens */
+  --control-bg: #151C27;
+  --control-bg-hover: #192231;
+  --control-bg-active: #1D283A;
+  --control-border: #334155;
+  --control-border-hover: #475569;
+  --control-disabled-bg: #101620;
+  --control-disabled-text: #64748B;
+  --control-placeholder: #64748B;
+
+  /* Links */
+  --link: #60A5FA;
+  --link-hover: #93C5FD;
+  --link-visited: #60A5FA;
+
+  /* Overlays, Modals & Tooltips */
+  --modal-bg: #151C27;
+  --popover-bg: #151C27;
+  --tooltip-bg: #F8FAFC;
+  --tooltip-text: #0B0F17;
+
+  /* Tables */
+  --table-header-bg: #101620;
+  --table-row-hover: #192231;
+  --table-divider: #263244;
+  --table-selected: #1E293B;
+
+  /* Navigation */
+  --nav-bg: rgba(11, 15, 23, 0.85);
+  --nav-border: #263244;
+  --nav-text: #B7C2D0;
+  --nav-text-active: #F8FAFC;
+  --nav-active-bg: #192231;
+
+  /* Skeleton Loading */
+  --skeleton-base: #1E293B;
+  --skeleton-highlight: #334155;
+
+  /* Text Selection */
+  --selection-bg: #1E3A8A;
+  --selection-text: #F8FAFC;
+
+  /* Disabled State */
+  --disabled-bg: #101620;
+  --disabled-border: #263244;
+  --disabled-text: #64748B;
+  --disabled-opacity: 0.6;
+
+  /* Elevation Shadows */
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-overlay: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   4. BASE APPLICATION & VIEWPORT STYLES
+   ========================================================================== */
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  color: var(--text-body);
+  background-color: var(--bg-main);
+  min-height: 100dvh;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+/* Global Text Selection */
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+/* Firefox Scrollbar Support */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) var(--bg-main);
+}
+
+/* WebKit Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Accessible Focus States (WCAG 2.2 AA) */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Safety */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Windows High Contrast / Forced Colors Mode */
+@media (forced-colors: active) {
+  * {
+    forced-color-adjust: auto;
+  }
+  .surface-card,
+  .glass-panel,
+  .carbon-panel {
+    border: 2px solid ButtonText !important;
+  }
+  :focus-visible {
+    outline: 3px solid Highlight !important;
+  }
+}
+
+/* ==========================================================================
+   5. UTILITY & SURFACE COMPONENT CLASSES
+   ========================================================================== */
+.glass-panel,
+.carbon-panel,
+.surface-card {
+  background-color: var(--card-main);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+}
+
+html[data-theme="dark"] .glass-panel,
+html[data-theme="dark"] .carbon-panel,
+html[data-theme="dark"] .surface-card,
+html.dark .glass-panel,
+html.dark .carbon-panel,
+html.dark .surface-card {
+  box-shadow: var(--shadow-elevated);
+}
+
+.surface-card-hover {
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.surface-card-hover:hover {
+  background-color: var(--card-elevated);
+  border-color: var(--border-strong);
+}
+
+/* Subtle Brand Accent Glow */
+.brand-glow {
+  box-shadow: 0 0 20px -3px rgba(37, 99, 235, 0.15);
+}
+html[data-theme="dark"] .brand-glow,
+html.dark .brand-glow {
+  box-shadow: 0 0 24px -4px rgba(96, 165, 250, 0.25);
+}
+
+/* Mobile Touch Target Helper (>=44px) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Safe Area & Mobile Chrome Spacing */
+.mobile-safe-bottom {
+  padding-bottom: calc(var(--mobile-nav-height) + var(--space-4) + var(--safe-bottom));
+}
+
+.sticky-action-dock {
+  position: fixed;
+  bottom: calc(var(--mobile-nav-height) + var(--safe-bottom));
+  left: 0;
+  right: 0;
+  z-index: var(--z-dock);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Density Preferences */
+.density-compact .surface-card {
+  padding: var(--space-3) !important;
+}
+.density-compact .table-row {
+  padding-top: var(--space-1);
+  padding-bottom: var(--space-1);
+}
+
+/* Unified App Shell & Mobile Spacing */
+.app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    padding-bottom: calc(var(--mobile-nav-height) + var(--safe-bottom));
+  }
+}

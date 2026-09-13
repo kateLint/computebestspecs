@@ -1,0 +1,316 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 1. PROVENANCE & SOURCE MODELS
+// ==========================================
+
+model Source {
+  id                    String            @id @default(cuid())
+  provider              String            // e.g. "Adobe", "Blender Foundation", "Blackmagic Design", "PassMark"
+  sourceType            String            // "official_docs", "benchmark_dump", "vendor_spec", "manual_audit"
+  url                   String?
+  official              Boolean           @default(false)
+  license               String?           // e.g. "CC0", "Proprietary", "Public Domain"
+  commercialUseAllowed  Boolean           @default(true)
+  retrievedAt           DateTime          @default(now())
+  verifiedAt            DateTime?
+  confidence            String            @default("HIGH") // HIGH, MEDIUM, LOW, INSUFFICIENT
+  checksum              String?
+  documents             SourceDocument[]
+  benchmarkDatasets     BenchmarkDataset[]
+  createdAt             DateTime          @default(now())
+
+  @@index([provider])
+}
+
+model SourceDocument {
+  id                 String    @id @default(cuid())
+  sourceId           String
+  source             Source    @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  rawContentLocation String?   // GCS / S3 or local path
+  rawContentText     String?   // Cached text snapshot
+  contentHash        String?   // SHA-256
+  retrievedAt        DateTime  @default(now())
+  parserVersion      String    @default("1.0.0")
+  createdAt          DateTime  @default(now())
+
+  @@index([sourceId])
+}
+
+// ==========================================
+// 2. HARDWARE CATALOG & CAPABILITIES
+// ==========================================
+
+model HardwareComponent {
+  id                  String                     @id @default(cuid())
+  type                String                     // "CPU", "GPU", "SOC", "NPU"
+  manufacturer        String                     // "Intel", "AMD", "NVIDIA", "Apple", "Qualcomm"
+  canonicalModel      String                     @unique
+  architecture        String                     @default("x86_64") // "x86_64", "arm64", "other"
+  physicalCores       Int?
+  threads             Int?
+  performanceScore    Int                        @default(50) // 0-100 normalized score
+  singleCoreScore     Int?
+  multiCoreScore      Int?
+  generation          String?
+  releaseYear         Int?
+  laptopVariant       Boolean                    @default(false)
+  powerClass          String?                    // "ultra-low", "standard-laptop", "desktop", "workstation"
+  vramGb              Float?                     @default(0)
+  memoryType          String?                    // "DDR4", "DDR5", "LPDDR5", "Unified", "GDDR6"
+  memoryBandwidthGBps Float?
+  isVerified          Boolean                    @default(true)
+  verifiedAt          DateTime?
+
+  aliases             HardwareAlias[]
+  capabilities        HardwareCapability[]
+  observations        BenchmarkObservation[]
+  benchmarkAggregates HardwareBenchmarkAggregate[]
+
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
+
+  @@index([type])
+  @@index([manufacturer])
+  @@index([canonicalModel])
+}
+
+model HardwareAlias {
+  id                  String            @id @default(cuid())
+  hardwareComponentId String
+  hardwareComponent   HardwareComponent @relation(fields: [hardwareComponentId], references: [id], onDelete: Cascade)
+  aliasName           String            @unique
+  source              String?           @default("catalog_seed")
+
+  @@index([aliasName])
+  @@index([hardwareComponentId])
+}
+
+model HardwareCapability {
+  id                  String            @id @default(cuid())
+  hardwareComponentId String
+  hardwareComponent   HardwareComponent @relation(fields: [hardwareComponentId], references: [id], onDelete: Cascade)
+  capabilityName      String            // "AVX2", "AVX512", "CUDA", "METAL", "DIRECTX_12", "VIRTUALIZATION", "RAY_TRACING"
+  capabilityValue     Boolean           @default(true)
+  minimumVersion      String?           // e.g. "8.6" for CUDA, "Metal 3"
+
+  @@unique([hardwareComponentId, capabilityName])
+  @@index([capabilityName])
+}
+
+// ==========================================
+// 3. SOFTWARE, REQUIREMENTS & WORKLOADS
+// ==========================================
+
+model Software {
+  id          String            @id @default(cuid())
+  slug        String            @unique
+  name        String
+  vendor      String
+  category    String            // "Design", "Video Editing", "3D", "Development", "IDE", "AI", "Audio", "Browser"
+  description String?
+  iconUrl     String?
+  aliases     String            @default("[]") // JSON array of aliases
+  isPublished Boolean           @default(true)
+  versions    SoftwareVersion[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([slug])
+  @@index([name])
+}
+
+model SoftwareVersion {
+  id                         String                @id @default(cuid())
+  softwareId                 String
+  software                   Software              @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  version                    String
+  isLatest                   Boolean               @default(false)
+  releaseDate                DateTime?
+  releaseYear                Int?
+  dataQuality                String                @default("VERIFIED") // VERIFIED, PARTIAL, STALE, CONFLICTING
+  supportedOperatingSystems  String                @default("[]") // JSON array of OsRequirement
+  
+  requirementProfiles        RequirementProfile[]
+  workloads                  WorkloadProfile[]
+  revisions                  RequirementRevision[]
+
+  createdAt                  DateTime              @default(now())
+  updatedAt                  DateTime              @updatedAt
+
+  @@unique([softwareId, version])
+  @@index([softwareId])
+}
+
+model RequirementProfile {
+  id                     String            @id @default(cuid())
+  softwareVersionId      String
+  softwareVersion        SoftwareVersion   @relation(fields: [softwareVersionId], references: [id], onDelete: Cascade)
+  tier                   String            @default("MINIMUM") // "MINIMUM", "RECOMMENDED", "PROFESSIONAL"
+  osFamily               String            // "windows", "macos", "linux", "all"
+  minOsVersion           String?
+  architectures          String            @default("[\"x86_64\",\"arm64\"]") // JSON array
+  minCpuScore            Int?
+  minCpuCores            Int?              @default(4)
+  minRamGb               Float             @default(8.0)
+  recommendedRamGb       Float?
+  installStorageGb       Float             @default(5.0)
+  scratchStorageGb       Float?            @default(0.0)
+  preferredStorageType   String?           @default("NVME_SSD")
+  requiresDedicatedGpu   Boolean           @default(false)
+  minGpuScore            Int?
+  minVramGb              Float?            @default(0.0)
+  requiresVirtualization Boolean           @default(false)
+
+  rules                  RequirementRule[]
+
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  @@index([softwareVersionId])
+}
+
+model RequirementRule {
+  id                   String             @id @default(cuid())
+  requirementProfileId String
+  requirementProfile   RequirementProfile @relation(fields: [requirementProfileId], references: [id], onDelete: Cascade)
+  capability           String             // "CUDA", "METAL", "DIRECTX_12", "VULKAN", "VIRTUALIZATION", "AVX2"
+  operator             String             @default("REQUIRED") // "REQUIRED", "MIN_VERSION", "ONE_OF"
+  severity             String             @default("HARD") // "HARD", "SOFT"
+  minimumVersion       String?
+  description          String?
+
+  @@index([requirementProfileId])
+  @@index([capability])
+}
+
+model RequirementRevision {
+  id                String          @id @default(cuid())
+  softwareVersionId String
+  softwareVersion   SoftwareVersion @relation(fields: [softwareVersionId], references: [id], onDelete: Cascade)
+  revisionNumber    Int             @default(1)
+  sourceId          String?
+  changesSummary    String?
+  publishedAt       DateTime        @default(now())
+
+  @@index([softwareVersionId])
+}
+
+model WorkloadProfile {
+  id                        String          @id @default(cuid())
+  softwareVersionId         String
+  softwareVersion           SoftwareVersion @relation(fields: [softwareVersionId], references: [id], onDelete: Cascade)
+  name                      String
+  description               String?
+  intensity                 String          @default("medium") // "light", "medium", "heavy", "professional"
+  typicalRamGb              Float           @default(4.0)
+  peakRamGb                 Float           @default(8.0)
+  typicalCpuPercent         Int             @default(30)
+  peakCpuPercent            Int             @default(75)
+  typicalGpuPercent         Int             @default(20)
+  peakGpuPercent            Int             @default(50)
+  typicalVramGb             Float?          @default(1.0)
+  peakVramGb                Float?          @default(2.0)
+  diskScratchGb             Float?          @default(10.0)
+  workloadConcurrencyFactor Float           @default(1.0)
+  usesVirtualization        Boolean         @default(false)
+
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+
+  @@index([softwareVersionId])
+}
+
+// ==========================================
+// 4. BENCHMARKING & CALIBRATION
+// ==========================================
+
+model BenchmarkDataset {
+  id           String                 @id @default(cuid())
+  name         String                 // e.g. "Blender Open Data Daily", "Phoronix MultiCore Test Suite"
+  sourceId     String?
+  source       Source?                @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  version      String                 @unique // e.g. "blender-2026-09-10"
+  snapshotDate DateTime
+  recordCount  Int                    @default(0)
+  checksum     String?
+  observations BenchmarkObservation[]
+  createdAt    DateTime               @default(now())
+
+  @@index([version])
+}
+
+model BenchmarkObservation {
+  id                  String             @id @default(cuid())
+  benchmarkDatasetId  String
+  benchmarkDataset    BenchmarkDataset   @relation(fields: [benchmarkDatasetId], references: [id], onDelete: Cascade)
+  hardwareComponentId String?
+  hardwareComponent   HardwareComponent? @relation(fields: [hardwareComponentId], references: [id], onDelete: SetNull)
+  hardwareRawName     String             // Name as reported in raw benchmark payload
+  benchmarkType       String             // "BLENDER_CYCLES", "PHORONIX_COMPILATION", "LLAMA_BENCH_TOKENS"
+  benchmarkScene      String?            // "monster", "junkshop", "classroom"
+  scoreValue          Float
+  normalizedScore     Int?               // 0-100 normalized score
+  sampleCount         Int                @default(1)
+  osFamily            String?
+  createdAt           DateTime           @default(now())
+
+  @@index([benchmarkDatasetId])
+  @@index([hardwareComponentId])
+  @@index([benchmarkType])
+}
+
+model HardwareBenchmarkAggregate {
+  id                  String            @id @default(cuid())
+  hardwareComponentId String
+  hardwareComponent   HardwareComponent @relation(fields: [hardwareComponentId], references: [id], onDelete: Cascade)
+  benchmarkType       String            // "BLENDER_CYCLES_GPU", "LLAMA_BENCH_DECODE", "PASSMARK_CPU"
+  aggregateScore      Float
+  minScore            Float?
+  maxScore            Float?
+  sampleCount         Int               @default(1)
+  confidenceLevel     String            @default("HIGH") // HIGH, MEDIUM, LOW
+  updatedAt           DateTime          @updatedAt
+
+  @@unique([hardwareComponentId, benchmarkType])
+  @@index([hardwareComponentId])
+}
+
+// ==========================================
+// 5. EVALUATION DATA & AUDIT
+// ==========================================
+
+model EvaluationSnapshot {
+  id                            String              @id @default(cuid())
+  publicId                      String              @unique
+  evaluationFingerprint         String
+  inputSnapshot                 String              // JSON serialized EvaluationInput (hardware + workloads)
+  requirementsSnapshot          String              // JSON serialized SoftwareVersion[]
+  resultSnapshot                String              // JSON serialized CompatibilityResult
+  engineVersion                 String
+  policyVersion                 String              @default("2026.1")
+  benchmarkDatasetVersion       String              @default("2026.1")
+  feedback                      EvaluationFeedback?
+  createdAt                     DateTime            @default(now())
+
+  @@index([publicId])
+  @@index([evaluationFingerprint])
+}
+
+model EvaluationFeedback {
+  id                     String             @id @default(cuid())
+  evaluationSnapshotId   String             @unique
+  evaluationSnapshot     EvaluationSnapshot @relation(fields: [evaluationSnapshotId], references: [id], onDelete: Cascade)
+  userRating             Int                // 1 (Poor/Wrong) to 5 (Perfect prediction)
+  feedbackText           String?
+  disagreementComponent  String?            // "memory", "gpu", "virtualization", "cpu"
+  actualMachineBehavior  String?
+  createdAt              DateTime           @default(now())
+}

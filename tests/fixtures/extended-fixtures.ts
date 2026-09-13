@@ -1,0 +1,160 @@
+import { HardwareProfile } from "../../lib/domain/hardware";
+
+export const MACBOOK_PRO_M3_18GB_FIXTURE: HardwareProfile = {
+  cpu: {
+    model: "Apple M3 Pro",
+    manufacturer: "Apple",
+    architecture: "arm64",
+    physicalCores: 11,
+    threads: 11,
+    performanceScore: 88,
+    isVerified: true,
+  },
+  gpu: {
+    model: "Apple M3 Pro 14-Core GPU",
+    manufacturer: "Apple",
+    type: "unified",
+    performanceScore: 78,
+    vramGb: 18,
+    supportsMetal: true,
+    isVerified: true,
+  },
+  ram: {
+    totalGb: 18,
+    type: "Unified",
+    topology: "UNIFIED_MEMORY",
+    soldered: true,
+    upgradeable: false,
+  },
+  storage: [
+    {
+      type: "NVME_SSD",
+      totalGb: 512,
+      freeGb: 280,
+      isSystemDrive: true,
+    },
+  ],
+  os: {
+    family: "macos",
+    version: "14.4",
+    architecture: "arm64",
+  },
+  architecture: "arm64",
+  deviceType: "laptop",
+  supportsVirtualization: true,
+  isVirtualizationEnabled: true,
+  upgradeFeasibility: {
+    isRamUpgradeable: false,
+    isGpuUpgradeable: false,
+    isStorageUpgradeable: false,
+    notes: ["All components are surface-soldered/integrated onto Apple Silicon SoC"],
+  },
+};
+
+export const BUDGET_OFFICE_PC_8GB_FIXTURE: HardwareProfile = {
+  cpu: {
+    model: "Intel Core i3-12100",
+    manufacturer: "Intel",
+    architecture: "x86_64",
+    physicalCores: 4,
+    threads: 8,
+    performanceScore: 48,
+    isVerified: true,
+  },
+  gpu: {
+    model: "Intel UHD Graphics 730",
+    manufacturer: "Intel",
+    type: "integrated",
+    performanceScore: 25,
+    vramGb: 0,
+    supportsDirectX12: true,
+    isVerified: true,
+  },
+  ram: {
+    totalGb: 8,
+    type: "DDR4",
+    topology: "SHARED_IGPU",
+    soldered: false,
+    upgradeable: true,
+  },
+  storage: [
+    {
+      type: "SATA_SSD",
+      totalGb: 256,
+      freeGb: 45,
+      isSystemDrive: true,
+    },
+  ],
+  os: {
+    family: "windows",
+    version: "11",
+    architecture: "x86_64",
+  },
+  architecture: "x86_64",
+  deviceType: "desktop",
+  supportsVirtualization: true,
+  isVirtualizationEnabled: true,
+  upgradeFeasibility: {
+    isRamUpgradeable: true,
+    isGpuUpgradeable: true,
+    isStorageUpgradeable: true,
+    maxSupportedRamGb: 64,
+    ramSlotsTotal: 2,
+    ramSlotsFree: 1,
+  },
+};
+
+export const RTX_4090_WORKSTATION_FIXTURE: HardwareProfile = {
+  cpu: {
+    model: "AMD Ryzen 9 7950X",
+    manufacturer: "AMD",
+    architecture: "x86_64",
+    physicalCores: 16,
+    threads: 32,
+    performanceScore: 98,
+    isVerified: true,
+  },
+  gpu: {
+    model: "NVIDIA GeForce RTX 4090",
+    manufacturer: "NVIDIA",
+    type: "dedicated",
+    performanceScore: 99,
+    vramGb: 24,
+    supportsCuda: true,
+    supportsDirectX12: true,
+    supportsVulkan: true,
+    isVerified: true,
+  },
+  ram: {
+    totalGb: 64,
+    type: "DDR5",
+    topology: "DISCRETE",
+    soldered: false,
+    upgradeable: true,
+  },
+  storage: [
+    {
+      type: "NVME_SSD",
+      totalGb: 4000,
+      freeGb: 2500,
+      isSystemDrive: true,
+    },
+  ],
+  os: {
+    family: "windows",
+    version: "11 Pro",
+    architecture: "x86_64",
+  },
+  architecture: "x86_64",
+  deviceType: "workstation",
+  supportsVirtualization: true,
+  isVirtualizationEnabled: true,
+  upgradeFeasibility: {
+    isRamUpgradeable: true,
+    isGpuUpgradeable: true,
+    isStorageUpgradeable: true,
+    maxSupportedRamGb: 192,
+    ramSlotsTotal: 4,
+    ramSlotsFree: 2,
+  },
+};
