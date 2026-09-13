@@ -123,6 +123,44 @@ export interface AnalyticsEventMap {
     previousState: "unknown" | "essential_only" | "analytics_allowed";
     newState: "unknown" | "essential_only" | "analytics_allowed";
   };
+  spec_import_started: BaseEventProperties & {
+    source: "pasted_text" | "image_ocr";
+  };
+  spec_import_completed: BaseEventProperties & {
+    source: "pasted_text" | "image_ocr";
+    confidence: number;
+    fieldCount?: number;
+  };
+  spec_import_cancelled: BaseEventProperties & {
+    source: "pasted_text" | "image_ocr";
+  };
+  spec_import_failed: BaseEventProperties & {
+    source: "pasted_text" | "image_ocr";
+    errorCode: string;
+  };
+  spec_field_corrected: BaseEventProperties & {
+    fieldName: "cpu" | "gpu" | "ram" | "storage" | "os";
+  };
+  spec_field_confirmed: BaseEventProperties & {
+    fieldName: "cpu" | "gpu" | "ram" | "storage" | "os";
+    isAmbiguousResolved?: boolean;
+  };
+  profile_saved: BaseEventProperties & {
+    profileSlotCount: number;
+  };
+  profile_deleted: BaseEventProperties & {
+    remainingSlotCount: number;
+  };
+  comparison_started: BaseEventProperties & {
+    comparedSystemsCount: number;
+  };
+  comparison_completed: BaseEventProperties & {
+    comparedSystemsCount: number;
+    hasMeaningfulDiffs: boolean;
+  };
+  upgrade_simulated: BaseEventProperties & {
+    component: "ram" | "gpu" | "cpu" | "storage";
+  };
 }
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;

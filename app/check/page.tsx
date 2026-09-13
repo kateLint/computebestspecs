@@ -30,6 +30,8 @@ import {
 import { CompatibilityResult, UpgradeRecommendation } from "@/lib/domain/compatibility";
 import { AddToComparisonButton } from "@/components/comparison/AddToComparisonButton";
 import { saveCurrentDraft, getCurrentDraft } from "@/lib/comparison/storage";
+import { SpecImportModal } from "@/components/importer/SpecImportModal";
+import { computerProfileToHardwareProfile, ComputerProfile } from "@/lib/domain/computer-profile";
 
 const DEFAULT_HARDWARE: HardwareProfile = {
   cpu: {
@@ -126,6 +128,7 @@ export default function CheckPcPage() {
   const [showSources, setShowSources] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [isStale, setIsStale] = useState(false);
 
   useEffect(() => {
@@ -360,9 +363,15 @@ export default function CheckPcPage() {
                 Step 1: Your Computer Specs
               </h2>
             </div>
-            <span className="text-[11px] text-content-muted">
-              Auto-detect or pick preset
-            </span>
+            <button
+              type="button"
+              onClick={() => setImportModalOpen(true)}
+              className="touch-target px-2.5 py-1 rounded-xl bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary text-xs font-bold border border-brand-primary/20 flex items-center gap-1.5 transition-all shadow-2xs"
+              title="Import specs from text or screenshot"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Import Specs</span>
+            </button>
           </div>
 
           <FriendlyHardwareSelector
@@ -726,6 +735,17 @@ export default function CheckPcPage() {
         }}
         isLoading={loading}
       />
+
+      <SpecImportModal
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onProfileConfirmed={(profile) => {
+          const hw = computerProfileToHardwareProfile(profile);
+          setHardware(hw);
+          setIsStale(true);
+        }}
+      />
     </div>
   );
 }
+

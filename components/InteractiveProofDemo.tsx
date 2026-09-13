@@ -15,7 +15,7 @@ export function InteractiveProofDemo() {
             Interactive Proof Demo
           </span>
           <h2 className="text-lg sm:text-xl font-bold text-content-strong mt-0.5">
-            Why minimum requirements don't tell the whole story
+            Why minimum requirements don&apos;t tell the whole story
           </h2>
           <p className="text-xs text-content-body mt-0.5 font-sans">
             Every vendor app passes individually, but concurrent load saturates system memory.

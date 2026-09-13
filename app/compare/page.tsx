@@ -23,6 +23,8 @@ import {
   clearSavedComparisons,
   subscribeToComparisonSet,
   MAX_COMPARISON_ITEMS,
+  exportComparisonSetToJson,
+  importComparisonItemFromJson,
 } from "@/lib/comparison/storage";
 import { ComparisonSet, EvaluatedComparisonItem, ComparisonAnalysis } from "@/lib/comparison/types";
 import { analyzeComparisonSet } from "@/lib/comparison/engine";
@@ -109,6 +111,35 @@ export default function ComparePage() {
     }
   };
 
+  const handleExportJson = () => {
+    const jsonStr = exportComparisonSetToJson();
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `computebestspecs_comparison_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        const res = importComparisonItemFromJson(content);
+        if (!res.success) {
+          alert(`Import failed: ${res.error}`);
+        }
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
   if (!comparisonSet || comparisonSet.items.length === 0) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 py-16 px-4">
@@ -120,8 +151,8 @@ export default function ComparePage() {
             Side-by-Side PC Comparison
           </h1>
           <p className="text-slate-400 max-w-lg mx-auto text-sm leading-relaxed">
-            You don't have any computers saved for comparison yet. Complete a computer check and click{" "}
-            <span className="text-cyan-400 font-semibold">"Add to Comparison"</span> to compare up to 3 systems under the exact same workload.
+            You don&apos;t have any computers saved for comparison yet. Complete a computer check and click{" "}
+            <span className="text-cyan-400 font-semibold">&quot;Add to Comparison&quot;</span> to compare up to 3 systems under the exact same workload.
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -191,6 +222,25 @@ export default function ComparePage() {
                 Max 3 slots filled
               </span>
             )}
+
+            <button
+              type="button"
+              onClick={handleExportJson}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all flex items-center gap-1.5"
+              title="Export saved comparisons as JSON"
+            >
+              <span>Export JSON</span>
+            </button>
+
+            <label className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all cursor-pointer flex items-center gap-1.5">
+              <span>Import JSON</span>
+              <input
+                type="file"
+                accept=".json,application/json"
+                onChange={handleImportJson}
+                className="hidden"
+              />
+            </label>
 
             <button
               type="button"

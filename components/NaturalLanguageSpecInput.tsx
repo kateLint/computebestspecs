@@ -84,7 +84,7 @@ export function NaturalLanguageSpecInput({ onApplyParsedHardware }: NaturalLangu
             <ComputeCompanion state="idle" size="sm" />
             <span>Describe Your Computer in Plain Text</span>
           </span>
-          <span className="text-[10px] text-content-muted font-normal">e.g. "M3 Pro MacBook 36GB" or "Ryzen 5, 3060, 16GB"</span>
+          <span className="text-[10px] text-content-muted font-normal">e.g. &quot;M3 Pro MacBook 36GB&quot; or &quot;Ryzen 5, 3060, 16GB&quot;</span>
         </label>
         <div className="flex gap-2 relative">
           <input
@@ -215,7 +215,7 @@ export function NaturalLanguageSpecInput({ onApplyParsedHardware }: NaturalLangu
               <span>Specification Clarification</span>
             </div>
             <p className="text-xs text-content-body">
-              I found multiple hardware matches for <strong className="text-content-strong">"{ambiguousCandidate.query}"</strong>. Which one are you using?
+              I found multiple hardware matches for <strong className="text-content-strong">&quot;{ambiguousCandidate.query}&quot;</strong>. Which one are you using?
             </p>
             <div className="space-y-2">
               {ambiguousCandidate.options.map((opt, i) => (

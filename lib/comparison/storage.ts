@@ -1,4 +1,4 @@
-import { ComparisonSet, SavedComparisonItem } from "./types";
+import { ComparisonSet, SavedComparisonItem, SavedComparisonHardware } from "./types";
 import { ComparisonSetSchema, CurrentDraftSchema } from "./schema";
 import { HardwareProfile } from "../domain/hardware";
 import { SelectedWorkload } from "../domain/software";
@@ -219,6 +219,146 @@ export function clearSavedComparisons(): void {
 /**
  * Subscribes to comparison set changes.
  */
+export function renameSavedComputer(id: string, newName: string): boolean {
+  const current = getComparisonSet();
+  const index = current.items.findIndex((i) => i.id === id);
+  if (index === -1) return false;
+
+  const updatedItems = [...current.items];
+  updatedItems[index] = {
+    ...updatedItems[index],
+    name: newName.trim().slice(0, 100) || updatedItems[index].name,
+    updatedAt: new Date().toISOString(),
+  };
+
+  saveComparisonSet({
+    ...current,
+    items: updatedItems,
+  });
+  return true;
+}
+
+/**
+ * Duplicates a saved computer in the comparison set.
+ */
+export function duplicateSavedComputer(id: string): {
+  success: boolean;
+  item?: SavedComparisonItem;
+  reason?: string;
+} {
+  const current = getComparisonSet();
+  if (current.items.length >= MAX_COMPARISON_ITEMS) {
+    return {
+      success: false,
+      reason: "You can compare up to three computers. Remove or replace one to continue.",
+    };
+  }
+
+  const target = current.items.find((i) => i.id === id);
+  if (!target) {
+    return {
+      success: false,
+      reason: "Target computer specification not found.",
+    };
+  }
+
+  const duplicatedItem: SavedComparisonItem = {
+    ...target,
+    id: `comp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    name: `${target.name} (Copy)`.slice(0, 100),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  const updatedItems = [...current.items, duplicatedItem];
+  saveComparisonSet({
+    ...current,
+    items: updatedItems,
+  });
+
+  return { success: true, item: duplicatedItem };
+}
+
+/**
+ * Exports a comparison item or set as a portable normalized JSON string.
+ */
+export function exportComparisonItemToJson(item: SavedComparisonItem): string {
+  return JSON.stringify(item, null, 2);
+}
+
+export function exportComparisonSetToJson(): string {
+  const current = getComparisonSet();
+  return JSON.stringify(current, null, 2);
+}
+
+/**
+ * Validates and imports a JSON string containing a SavedComparisonItem.
+ */
+export function importComparisonItemFromJson(jsonString: string): {
+  success: boolean;
+  item?: SavedComparisonItem;
+  error?: string;
+} {
+  try {
+    const parsed = JSON.parse(jsonString);
+    if (!parsed || typeof parsed !== "object") {
+      return { success: false, error: "Invalid file format: JSON object expected." };
+    }
+
+    // Check if it has hardware profile
+    if (!parsed.hardware || !parsed.hardware.cpu) {
+      return { success: false, error: "Missing essential hardware fields in specification." };
+    }
+
+    const hw = parsed.hardware;
+    const cpuStr = typeof hw.cpu === "string" ? hw.cpu : hw.cpu?.model || "Standard Processor";
+    const gpuStr = typeof hw.gpu === "string" ? hw.gpu : hw.gpu?.model || "Integrated Graphics";
+    const ramNum = typeof hw.ramGb === "number" ? hw.ramGb : hw.ram?.totalGb || 16;
+    const storageNum = typeof hw.storageGb === "number" ? hw.storageGb : (hw.storage?.[0]?.totalGb || 512);
+    const osStr = typeof hw.os === "string" ? hw.os : hw.os?.family || "windows";
+
+    const normalizedHardware: SavedComparisonHardware = {
+      cpu: cpuStr,
+      gpu: gpuStr,
+      ramGb: ramNum,
+      storageGb: storageNum,
+      os: osStr,
+      formFactor: hw.formFactor || (hw.deviceType === "laptop" ? "laptop" : "desktop"),
+      rawHardwareProfile: hw.rawHardwareProfile || {
+        cpu: { model: cpuStr, manufacturer: "Intel", architecture: "x86_64", physicalCores: 8 },
+        gpu: { model: gpuStr, manufacturer: "NVIDIA", type: "dedicated", vramGb: 8 },
+        ram: { totalGb: ramNum, type: "DDR5" },
+        storage: [{ type: "NVME_SSD", totalGb: storageNum, isSystemDrive: true }],
+        os: { family: osStr as any, architecture: "x86_64" },
+        architecture: "x86_64",
+        deviceType: hw.formFactor === "laptop" ? "laptop" : "desktop",
+      },
+    };
+
+    const res = addComputerToComparison({
+      name: (parsed.name || "Imported Computer Profile").slice(0, 100),
+      hardware: normalizedHardware,
+      workloads: parsed.workloads || [],
+      isSimultaneous: parsed.isSimultaneous ?? true,
+      engineVersion: parsed.engineVersion || "1.0.0",
+      catalogVersion: parsed.catalogVersion || "1.0.0",
+    });
+
+
+
+    if (!res.success) {
+      return { success: false, error: res.reason || "Failed to add imported computer to comparison set." };
+    }
+
+    return { success: true, item: res.item };
+  } catch (e: any) {
+    return { success: false, error: `JSON Parse error: ${e.message}` };
+  }
+}
+
+/**
+ * Subscribes to comparison set changes.
+ */
 export function subscribeToComparisonSet(listener: StorageListener): () => void {
   listeners.add(listener);
   return () => {
@@ -269,3 +409,5 @@ export function getCurrentDraft(): { hardware: HardwareProfile; workloads: Selec
     return inMemoryDraft;
   }
 }
+
+

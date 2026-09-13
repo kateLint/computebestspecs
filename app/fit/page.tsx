@@ -170,7 +170,7 @@ export default function FitForMePage() {
           Is this computer right for you?
         </h1>
         <p className="text-xs sm:text-sm text-content-body max-w-3xl mt-1.5 leading-relaxed">
-          We'll test it against the way you actually work, play, create, and use AI.
+          We&apos;ll test it against the way you actually work, play, create, and use AI.
         </p>
       </div>
 
