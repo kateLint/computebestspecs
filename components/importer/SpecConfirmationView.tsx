@@ -97,17 +97,17 @@ export function SpecConfirmationView(props: SpecConfirmationViewProps) {
   const isReadyToEvaluate = activeAmbiguities.length === 0;
 
   return (
-    <div className="space-y-6 text-left">
+    <div className="space-y-6 text-left font-sans">
       {/* Step Header */}
-      <div className="border-b border-slate-800 pb-4">
-        <div className="flex items-center gap-2 text-cyan-400 text-xs font-mono mb-1">
+      <div className="border-b border-border-subtle pb-4">
+        <div className="flex items-center gap-2 text-brand-primary text-xs font-mono mb-1">
           <Sparkles className="w-3.5 h-3.5" />
           <span>STEP 2: REVIEW & CONFIRM DETECTED HARDWARE</span>
         </div>
-        <h3 className="text-xl font-bold text-slate-100">
+        <h3 className="text-xl font-bold text-content-strong">
           Confirm Your Imported Specifications
         </h3>
-        <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+        <p className="text-xs text-content-body mt-1 leading-relaxed">
           Please review the detected components below. The deterministic engine uses these verified values to calculate exact compatibility and bottlenecks.
         </p>
       </div>
@@ -116,13 +116,13 @@ export function SpecConfirmationView(props: SpecConfirmationViewProps) {
       {activeAmbiguities.map((amb) => (
         <div
           key={amb.field}
-          className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs space-y-3 shadow-lg"
+          className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 text-xs space-y-3 shadow-sm"
         >
           <div className="flex items-start gap-2.5">
-            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-amber-100 block">Clarification Needed:</span>
-              <p className="text-amber-300 mt-0.5">{amb.question}</p>
+              <span className="font-bold text-content-strong block">Clarification Needed:</span>
+              <p className="text-content-body mt-0.5">{amb.question}</p>
             </div>
           </div>
 
@@ -132,13 +132,13 @@ export function SpecConfirmationView(props: SpecConfirmationViewProps) {
                 key={opt.id}
                 type="button"
                 onClick={() => handleResolveAmbiguity(amb.field as any, opt.id)}
-                className="p-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-amber-500/30 hover:border-amber-400 text-left transition-all group"
+                className="p-3 rounded-xl bg-surface-card hover:bg-surface-elevated border border-amber-500/30 hover:border-brand-primary text-left transition-all group"
               >
-                <span className="font-bold text-slate-100 text-xs group-hover:text-cyan-400 block">
+                <span className="font-bold text-content-strong text-xs group-hover:text-brand-primary block">
                   {opt.label}
                 </span>
                 {opt.details && (
-                  <span className="text-[11px] text-slate-400 block mt-0.5">{opt.details}</span>
+                  <span className="text-[11px] text-content-muted block mt-0.5">{opt.details}</span>
                 )}
               </button>
             ))}
@@ -150,7 +150,7 @@ export function SpecConfirmationView(props: SpecConfirmationViewProps) {
       <div className="space-y-3">
         {/* CPU */}
         <FieldCard
-          icon={<Cpu className="w-4 h-4 text-cyan-400" />}
+          icon={<Cpu className="w-4 h-4 text-brand-primary" />}
           label="Processor (CPU)"
           value={profile.cpu.value.model}
           confidence={profile.cpu.confidence}
@@ -161,7 +161,7 @@ export function SpecConfirmationView(props: SpecConfirmationViewProps) {
 
         {/* GPU */}
         <FieldCard
-          icon={<Tv className="w-4 h-4 text-violet-400" />}
+          icon={<Tv className="w-4 h-4 text-violet-600 dark:text-violet-400" />}
           label="Graphics Processor (GPU)"
           value={`${profile.gpu.value.model} ${profile.gpu.value.variant === "laptop" ? "(Laptop GPU)" : ""}`}
           confidence={profile.gpu.confidence}
@@ -172,7 +172,7 @@ export function SpecConfirmationView(props: SpecConfirmationViewProps) {
 
         {/* RAM */}
         <FieldCard
-          icon={<Layers className="w-4 h-4 text-emerald-400" />}
+          icon={<Layers className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
           label="System Memory (RAM)"
           value={`${profile.ram.value.capacityGb} GB ${profile.ram.value.generation || ""}`}
           confidence={profile.ram.confidence}
@@ -183,7 +183,7 @@ export function SpecConfirmationView(props: SpecConfirmationViewProps) {
 
         {/* Storage */}
         <FieldCard
-          icon={<HardDrive className="w-4 h-4 text-teal-400" />}
+          icon={<HardDrive className="w-4 h-4 text-teal-600 dark:text-teal-400" />}
           label="Storage Drive"
           value={`${profile.storage.value.totalCapacityGb >= 1000 ? `${profile.storage.value.totalCapacityGb / 1000} TB` : `${profile.storage.value.totalCapacityGb} GB`} NVMe / SSD`}
           confidence={profile.storage.confidence}
@@ -194,7 +194,7 @@ export function SpecConfirmationView(props: SpecConfirmationViewProps) {
 
         {/* OS */}
         <FieldCard
-          icon={<Monitor className="w-4 h-4 text-blue-400" />}
+          icon={<Monitor className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
           label="Operating System"
           value={`${profile.os.value.family.toUpperCase()} ${profile.os.value.versionString || ""}`}
           confidence={profile.os.confidence}
@@ -205,11 +205,11 @@ export function SpecConfirmationView(props: SpecConfirmationViewProps) {
       </div>
 
       {/* Footer Action Dock */}
-      <div className="pt-4 border-t border-slate-800 flex items-center justify-between gap-3">
+      <div className="pt-4 border-t border-border-subtle flex items-center justify-between gap-3">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
+          className="px-4 py-2 text-xs font-semibold text-content-muted hover:text-content-strong transition-colors"
         >
           Cancel & Edit Manually
         </button>
@@ -218,10 +218,10 @@ export function SpecConfirmationView(props: SpecConfirmationViewProps) {
           type="button"
           disabled={!isReadyToEvaluate}
           onClick={() => onConfirm(profile)}
-          className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-md ${
+          className={`touch-target px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-md ${
             isReadyToEvaluate
-              ? "bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-950/50"
-              : "bg-slate-800 text-slate-500 cursor-not-allowed"
+              ? "bg-brand-primary hover:bg-brand-primary-hover text-[var(--on-brand)] shadow-xs"
+              : "bg-surface-elevated text-content-muted cursor-not-allowed"
           }`}
         >
           <Check className="w-4 h-4" />
@@ -252,31 +252,31 @@ function FieldCard({
   const isConfirmed = state === "confirmed";
 
   return (
-    <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-3">
+    <div className="p-3.5 rounded-2xl bg-surface-card border border-border-subtle flex items-center justify-between gap-3 shadow-xs">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="p-2 rounded-lg bg-slate-800/80 shrink-0">{icon}</div>
+        <div className="p-2 rounded-xl bg-surface-subtle shrink-0 border border-border-subtle">{icon}</div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-content-muted uppercase tracking-wider">
               {label}
             </span>
             <span
               className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
                 isConfirmed
-                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                   : confidence >= 0.8
-                  ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                  : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                  ? "bg-brand-primary/10 text-brand-primary border border-brand-primary/20"
+                  : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
               }`}
             >
               {isConfirmed ? "Confirmed" : `${Math.round(confidence * 100)}% confidence`}
             </span>
           </div>
-          <span className="text-xs font-bold text-slate-100 truncate block mt-0.5">
+          <span className="text-xs font-bold text-content-strong truncate block mt-0.5">
             {value}
           </span>
           {rawSnippet && (
-            <span className="text-[10px] text-slate-500 truncate block font-mono">
+            <span className="text-[10px] text-content-muted truncate block font-mono">
               Detected from: &quot;{rawSnippet}&quot;
             </span>
           )}
@@ -287,7 +287,7 @@ function FieldCard({
         <button
           type="button"
           onClick={onConfirm}
-          className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-semibold shrink-0 transition-colors"
+          className="px-2.5 py-1 rounded-lg bg-surface-subtle hover:bg-surface-elevated text-brand-primary text-xs font-semibold shrink-0 border border-border-subtle transition-colors"
         >
           Confirm
         </button>

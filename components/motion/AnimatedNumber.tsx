@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 
 interface AnimatedNumberProps {
@@ -20,14 +20,16 @@ export function AnimatedNumber({
 }: AnimatedNumberProps) {
   const shouldReduceMotion = useReducedMotion();
   const [displayValue, setDisplayValue] = useState<number>(value);
+  const currentValRef = useRef(value);
 
   useEffect(() => {
     if (shouldReduceMotion) {
       setDisplayValue(value);
+      currentValRef.current = value;
       return;
     }
 
-    const start = displayValue;
+    const start = currentValRef.current;
     const end = value;
     if (start === end) return;
 
@@ -42,11 +44,13 @@ export function AnimatedNumber({
       const current = Math.round(start + (end - start) * eased);
       
       setDisplayValue(current);
+      currentValRef.current = current;
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
         setDisplayValue(end);
+        currentValRef.current = end;
       }
     };
 

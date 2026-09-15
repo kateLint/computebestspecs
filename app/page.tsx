@@ -160,66 +160,64 @@ export default function HomePage() {
       {/* 4. What Can ComputeBestSpecs Answer? (Decision Framework) */}
       <section
         id="section-framework"
-        className="landing-section min-h-[calc(100dvh-5rem)] flex flex-col justify-center py-8 sm:py-12"
+        className="space-y-6 max-w-5xl mx-auto w-full"
       >
-        <div className="space-y-6 max-w-5xl mx-auto w-full">
-          <div className="text-center space-y-2">
-            <span className="text-xs uppercase font-bold text-brand-primary font-mono tracking-wider">
-              Decision Framework
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-content-strong">
-              Six questions answered with deterministic clarity
-            </h2>
+        <div className="text-center space-y-2">
+          <span className="text-xs uppercase font-bold text-brand-primary font-mono tracking-wider">
+            Decision Framework
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-black text-content-strong">
+            Six questions answered with deterministic clarity
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
+            <div className="text-xs font-bold text-brand-primary font-mono">01 • Compatibility</div>
+            <h4 className="text-base font-bold text-content-strong">Can it run?</h4>
+            <p className="text-xs text-content-body leading-relaxed">
+              Hard OS compatibility, ISA instructions, hypervisor support, and hardware API baselines.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
-              <div className="text-xs font-bold text-brand-primary font-mono">01 • Compatibility</div>
-              <h4 className="text-base font-bold text-content-strong">Can it run?</h4>
-              <p className="text-xs text-content-body leading-relaxed">
-                Hard OS compatibility, ISA instructions, hypervisor support, and hardware API baselines.
-              </p>
-            </div>
+          <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
+            <div className="text-xs font-bold text-brand-primary font-mono">02 • Performance</div>
+            <h4 className="text-base font-bold text-content-strong">Will it run well?</h4>
+            <p className="text-xs text-content-body leading-relaxed">
+              Real performance tiers under concurrent multitasking load, not theoretical single-app idle states.
+            </p>
+          </div>
 
-            <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
-              <div className="text-xs font-bold text-brand-primary font-mono">02 • Performance</div>
-              <h4 className="text-base font-bold text-content-strong">Will it run well?</h4>
-              <p className="text-xs text-content-body leading-relaxed">
-                Real performance tiers under concurrent multitasking load, not theoretical single-app idle states.
-              </p>
-            </div>
+          <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
+            <div className="text-xs font-bold text-brand-primary font-mono">03 • Holistic Fit</div>
+            <h4 className="text-base font-bold text-content-strong">Is it right for me?</h4>
+            <p className="text-xs text-content-body leading-relaxed">
+              Tailored fit based on how many hours you work, multitasking intensity, and battery/noise needs.
+            </p>
+          </div>
 
-            <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
-              <div className="text-xs font-bold text-brand-primary font-mono">03 • Holistic Fit</div>
-              <h4 className="text-base font-bold text-content-strong">Is it right for me?</h4>
-              <p className="text-xs text-content-body leading-relaxed">
-                Tailored fit based on how many hours you work, multitasking intensity, and battery/noise needs.
-              </p>
-            </div>
+          <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
+            <div className="text-xs font-bold text-brand-primary font-mono">04 • Upgrades</div>
+            <h4 className="text-base font-bold text-content-strong">What should I upgrade?</h4>
+            <p className="text-xs text-content-body leading-relaxed">
+              Identify the exact primary bottleneck (RAM, VRAM, GPU, CPU, Storage) and simulate score improvements.
+            </p>
+          </div>
 
-            <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
-              <div className="text-xs font-bold text-brand-primary font-mono">04 • Upgrades</div>
-              <h4 className="text-base font-bold text-content-strong">What should I upgrade?</h4>
-              <p className="text-xs text-content-body leading-relaxed">
-                Identify the exact primary bottleneck (RAM, VRAM, GPU, CPU, Storage) and simulate score improvements.
-              </p>
-            </div>
+          <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
+            <div className="text-xs font-bold text-brand-primary font-mono">05 • Purchasing</div>
+            <h4 className="text-base font-bold text-content-strong">What should I buy?</h4>
+            <p className="text-xs text-content-body leading-relaxed">
+              Get concrete hardware configurations matched to your software needs within your target budget.
+            </p>
+          </div>
 
-            <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
-              <div className="text-xs font-bold text-brand-primary font-mono">05 • Purchasing</div>
-              <h4 className="text-base font-bold text-content-strong">What should I buy?</h4>
-              <p className="text-xs text-content-body leading-relaxed">
-                Get concrete hardware configurations matched to your software needs within your target budget.
-              </p>
-            </div>
-
-            <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
-              <div className="text-xs font-bold text-brand-primary font-mono">06 • Local AI</div>
-              <h4 className="text-base font-bold text-content-strong">Can it run local AI?</h4>
-              <p className="text-xs text-content-body leading-relaxed">
-                Model quantization limits, context window memory pressure, and subagent concurrency thresholds.
-              </p>
-            </div>
+          <div className="surface-card p-5 rounded-2xl border border-border-subtle space-y-2">
+            <div className="text-xs font-bold text-brand-primary font-mono">06 • Local AI</div>
+            <h4 className="text-base font-bold text-content-strong">Can it run local AI?</h4>
+            <p className="text-xs text-content-body leading-relaxed">
+              Model quantization limits, context window memory pressure, and subagent concurrency thresholds.
+            </p>
           </div>
         </div>
       </section>
@@ -227,9 +225,9 @@ export default function HomePage() {
       {/* 5. Start with Your Workload (Workload Presets) */}
       <section
         id="section-presets"
-        className="landing-section min-h-[calc(100dvh-5rem)] flex flex-col justify-center py-8 sm:py-12"
+        className="max-w-5xl mx-auto w-full"
       >
-        <div className="surface-card p-6 sm:p-8 rounded-3xl border border-border-subtle space-y-6 shadow-sm max-w-5xl mx-auto w-full">
+        <div className="surface-card p-6 sm:p-8 rounded-3xl border border-border-subtle space-y-6 shadow-sm w-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-border-subtle">
             <div>
               <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-brand-primary">
@@ -288,9 +286,9 @@ export default function HomePage() {
       {/* 6. Why Trust the Result? (Trust Layer) */}
       <section
         id="section-trust"
-        className="landing-section min-h-[calc(100dvh-5rem)] flex flex-col justify-center py-8 sm:py-12"
+        className="max-w-5xl mx-auto w-full"
       >
-        <div className="surface-card p-6 sm:p-8 rounded-3xl border border-border-subtle space-y-6 shadow-sm max-w-5xl mx-auto w-full">
+        <div className="surface-card p-6 sm:p-8 rounded-3xl border border-border-subtle space-y-6 shadow-sm w-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border-subtle">
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">
@@ -356,7 +354,7 @@ export default function HomePage() {
       {/* 7. Final Conversion Banner */}
       <section
         id="section-cta"
-        className="landing-section min-h-[calc(100dvh-5rem)] flex flex-col justify-center py-8 sm:py-12"
+        className="max-w-5xl mx-auto w-full"
       >
         <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-brand-primary/10 via-surface-card to-brand-cyan/10 border border-brand-primary/20 text-center space-y-6 max-w-4xl mx-auto shadow-md w-full">
           <div className="space-y-2 max-w-xl mx-auto">

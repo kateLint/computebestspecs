@@ -53,16 +53,6 @@ export function SpecImportModal({ isOpen, onClose, onProfileConfirmed }: SpecImp
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cancelOcrRef = useRef<(() => void) | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      analytics.track("journey_started" as any, { journey: "spec_import" });
-    } else {
-      handleReset();
-    }
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
   const handleReset = () => {
     setPastedText("");
     setIsProcessing(false);
@@ -74,6 +64,14 @@ export function SpecImportModal({ isOpen, onClose, onProfileConfirmed }: SpecImp
       cancelOcrRef.current = null;
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      analytics.track("journey_started" as any, { journey: "spec_import" });
+    } else {
+      handleReset();
+    }
+  }, [isOpen]);
 
   const handleParseText = () => {
     if (!pastedText.trim()) {
@@ -160,6 +158,8 @@ export function SpecImportModal({ isOpen, onClose, onProfileConfirmed }: SpecImp
     onProfileConfirmed(confirmedProfile);
     onClose();
   };
+
+  if (!isOpen) return null;
 
   return (
     <div

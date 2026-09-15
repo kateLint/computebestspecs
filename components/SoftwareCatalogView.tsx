@@ -508,7 +508,7 @@ export function SoftwareCatalogView({ initialSoftware }: SoftwareCatalogViewProp
           <Database className="h-8 w-8 text-content-muted mx-auto" />
           <h3 className="text-base font-bold text-content-strong">No software matched your filter criteria</h3>
           <p className="text-xs text-content-body max-w-md mx-auto">
-            Try resetting your search query or choosing "All Categories" to view the full directory.
+            Try resetting your search query or choosing &quot;All Categories&quot; to view the full directory.
           </p>
           <button
             type="button"
