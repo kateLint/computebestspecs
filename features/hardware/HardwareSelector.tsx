@@ -1,13 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { HardwareProfile, CpuArchitecture, StorageType, DeviceType, OperatingSystemFamily } from "@/lib/domain/hardware";
-import { Search, Cpu, HardDrive, Monitor, Laptop, Server, AlertCircle } from "lucide-react";
+import { Search, Cpu, HardDrive, Monitor, Laptop, Server, AlertCircle, X, Sparkles } from "lucide-react";
 
 interface HardwareSelectorProps {
   value: HardwareProfile;
   onChange: (profile: HardwareProfile) => void;
 }
+
+const POPULAR_CPU_PRESETS = [
+  "Apple M4 Max",
+  "Apple M3 Pro",
+  "Intel Core i9-14900K",
+  "Intel Core i7-13700K",
+  "AMD Ryzen 7 7800X3D",
+  "AMD Ryzen 5 7600X",
+  "Intel Core Ultra 7 155H",
+];
+
+const POPULAR_GPU_PRESETS = [
+  "RTX 4090",
+  "RTX 4080 Super",
+  "RTX 4070",
+  "RTX 4060",
+  "Apple M3 Max GPU",
+  "Radeon RX 7900 XTX",
+  "Intel Arc A770",
+];
 
 export function HardwareSelector({ value, onChange }: HardwareSelectorProps) {
   const [cpuQuery, setCpuQuery] = useState(value.cpu.model);
@@ -20,36 +40,42 @@ export function HardwareSelector({ value, onChange }: HardwareSelectorProps) {
   const [isManualGpu, setIsManualGpu] = useState(value.gpu ? !value.gpu.isVerified : false);
 
   useEffect(() => {
-    if (!cpuQuery || isManualCpu) {
+    if (isManualCpu) {
       setCpuResults([]);
       return;
     }
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/hardware/search?type=cpu&q=${encodeURIComponent(cpuQuery)}`);
+        const url = cpuQuery.trim()
+          ? `/api/hardware/search?type=cpu&q=${encodeURIComponent(cpuQuery.trim())}&limit=30`
+          : `/api/hardware/search?type=cpu&limit=30`;
+        const res = await fetch(url);
         const data = await res.json();
         setCpuResults(data.results?.cpus || []);
       } catch (err) {
         console.error(err);
       }
-    }, 200);
+    }, 150);
     return () => clearTimeout(timer);
   }, [cpuQuery, isManualCpu]);
 
   useEffect(() => {
-    if (!gpuQuery || isManualGpu) {
+    if (isManualGpu) {
       setGpuResults([]);
       return;
     }
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/hardware/search?type=gpu&q=${encodeURIComponent(gpuQuery)}`);
+        const url = gpuQuery.trim()
+          ? `/api/hardware/search?type=gpu&q=${encodeURIComponent(gpuQuery.trim())}&limit=30`
+          : `/api/hardware/search?type=gpu&limit=30`;
+        const res = await fetch(url);
         const data = await res.json();
         setGpuResults(data.results?.gpus || []);
       } catch (err) {
         console.error(err);
       }
-    }, 200);
+    }, 150);
     return () => clearTimeout(timer);
   }, [gpuQuery, isManualGpu]);
 
@@ -183,7 +209,7 @@ export function HardwareSelector({ value, onChange }: HardwareSelectorProps) {
         </div>
 
         {!isManualCpu ? (
-          <div className="relative">
+          <div className="space-y-2">
             <div className="relative">
               <Search className="absolute left-3.5 top-3 h-4 w-4 text-content-muted" />
               <input
@@ -194,33 +220,114 @@ export function HardwareSelector({ value, onChange }: HardwareSelectorProps) {
                   setShowCpuDropdown(true);
                 }}
                 onFocus={() => setShowCpuDropdown(true)}
-                placeholder="Search CPU (e.g. Ryzen 5 5600H, i7-14700K, Apple M3 Pro)..."
-                className="w-full bg-surface-card border border-border-subtle hover:border-border-strong rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-content-strong placeholder-content-muted focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all font-sans"
+                placeholder="Search CPU (e.g. Ryzen 7 7800X3D, i9-14900K, Apple M4 Max)..."
+                className="w-full bg-surface-card border border-border-subtle hover:border-border-strong rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-content-strong placeholder-content-muted focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all font-sans"
               />
+              {cpuQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCpuQuery("");
+                    setShowCpuDropdown(true);
+                  }}
+                  className="absolute right-3 top-2.5 p-1 rounded-full text-content-muted hover:text-content-strong hover:bg-surface-elevated transition-colors"
+                  title="Clear search to browse all 80+ CPUs"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
 
-            {showCpuDropdown && cpuResults.length > 0 && (
-              <div className="absolute z-30 mt-1 w-full bg-surface-card rounded-xl shadow-xl border border-border-subtle overflow-hidden max-h-56 overflow-y-auto font-mono">
-                {cpuResults.map((cpu) => (
-                  <button
-                    key={cpu.id}
-                    type="button"
-                    onClick={() => selectCpu(cpu)}
-                    className="w-full text-left px-4 py-2.5 hover:bg-surface-elevated text-xs text-content-body hover:text-content-strong flex items-center justify-between border-b border-border-subtle last:border-0"
-                  >
-                    <div>
-                      <span className="font-bold text-content-strong">{cpu.model}</span>
-                      <span className="ml-2 text-[10px] text-content-muted">
-                        {cpu.physicalCores ? `${cpu.physicalCores} Cores • ` : ""}
-                        {cpu.architecture}
-                        {cpu.laptopVariant ? " • Laptop" : ""}
-                      </span>
-                    </div>
-                    <span className="px-1.5 py-0.5 rounded bg-brand-primary/10 text-brand-primary text-[10px] font-bold border border-brand-primary/20">
-                      Score: {cpu.performanceScore}
+            {/* Popular CPU Quick Chips */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] font-mono scrollbar-none">
+              <span className="text-[10px] uppercase font-bold text-content-muted shrink-0 flex items-center gap-1">
+                <Sparkles className="h-3 w-3 text-amber-500" />
+                Quick:
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setCpuQuery("");
+                  setShowCpuDropdown(true);
+                }}
+                className={`px-2 py-0.5 rounded-full border text-[10px] font-medium shrink-0 transition-colors ${
+                  !cpuQuery.trim()
+                    ? "bg-brand-primary text-white border-brand-primary shadow-xs"
+                    : "bg-surface-subtle border-border-subtle text-content-muted hover:text-content-strong hover:border-border-strong"
+                }`}
+              >
+                Browse All (80+)
+              </button>
+              {POPULAR_CPU_PRESETS.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => {
+                    setCpuQuery(preset);
+                    setShowCpuDropdown(true);
+                  }}
+                  className={`px-2 py-0.5 rounded-full border text-[10px] font-medium shrink-0 transition-colors ${
+                    cpuQuery.toLowerCase() === preset.toLowerCase()
+                      ? "bg-brand-primary text-white border-brand-primary shadow-xs"
+                      : "bg-surface-subtle border-border-subtle text-content-muted hover:text-content-strong hover:border-border-strong"
+                  }`}
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
+
+            {showCpuDropdown && (
+              <div className="relative z-30">
+                <div className="absolute top-0 left-0 w-full bg-surface-card rounded-xl shadow-xl border border-border-subtle overflow-hidden max-h-64 overflow-y-auto font-mono">
+                  <div className="px-3 py-1.5 bg-surface-subtle border-b border-border-subtle text-[10px] font-mono text-content-muted flex items-center justify-between">
+                    <span>
+                      {cpuResults.length > 0
+                        ? `Showing ${cpuResults.length} matching verified CPUs`
+                        : "No CPUs found matching search"}
                     </span>
-                  </button>
-                ))}
+                    <button
+                      type="button"
+                      onClick={() => setShowCpuDropdown(false)}
+                      className="text-content-muted hover:text-content-strong font-bold"
+                    >
+                      ✕ Close
+                    </button>
+                  </div>
+                  {cpuResults.length > 0 ? (
+                    cpuResults.map((cpu) => (
+                      <button
+                        key={cpu.id}
+                        type="button"
+                        onClick={() => selectCpu(cpu)}
+                        className="w-full text-left px-4 py-2.5 hover:bg-surface-elevated text-xs text-content-body hover:text-content-strong flex items-center justify-between border-b border-border-subtle last:border-0"
+                      >
+                        <div>
+                          <span className="font-bold text-content-strong">{cpu.model}</span>
+                          <span className="ml-2 text-[10px] text-content-muted">
+                            {cpu.physicalCores ? `${cpu.physicalCores} Cores • ` : ""}
+                            {cpu.architecture}
+                            {cpu.laptopVariant ? " • Laptop" : ""}
+                          </span>
+                        </div>
+                        <span className="px-1.5 py-0.5 rounded bg-brand-primary/10 text-brand-primary text-[10px] font-bold border border-brand-primary/20">
+                          Score: {cpu.performanceScore}
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-xs text-content-muted">
+                      No matching models found. Clear the search field or switch to{" "}
+                      <span
+                        className="text-brand-primary cursor-pointer underline"
+                        onClick={() => setIsManualCpu(true)}
+                      >
+                        Manual Specification
+                      </span>
+                      .
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -306,7 +413,7 @@ export function HardwareSelector({ value, onChange }: HardwareSelectorProps) {
         </div>
 
         {!isManualGpu ? (
-          <div className="relative">
+          <div className="space-y-2">
             <div className="relative">
               <Search className="absolute left-3.5 top-3 h-4 w-4 text-content-muted" />
               <input
@@ -317,32 +424,113 @@ export function HardwareSelector({ value, onChange }: HardwareSelectorProps) {
                   setShowGpuDropdown(true);
                 }}
                 onFocus={() => setShowGpuDropdown(true)}
-                placeholder="Search GPU (e.g. RTX 3050 Laptop, RTX 4070, Apple M3 Pro GPU)..."
-                className="w-full bg-surface-card border border-border-subtle hover:border-border-strong rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-content-strong placeholder-content-muted focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all font-sans"
+                placeholder="Search GPU (e.g. RTX 4080 Super, RTX 4070, Apple M3 Max GPU)..."
+                className="w-full bg-surface-card border border-border-subtle hover:border-border-strong rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-content-strong placeholder-content-muted focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all font-sans"
               />
+              {gpuQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGpuQuery("");
+                    setShowGpuDropdown(true);
+                  }}
+                  className="absolute right-3 top-2.5 p-1 rounded-full text-content-muted hover:text-content-strong hover:bg-surface-elevated transition-colors"
+                  title="Clear search to browse all 60+ GPUs"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
 
-            {showGpuDropdown && gpuResults.length > 0 && (
-              <div className="absolute z-30 mt-1 w-full bg-surface-card rounded-xl shadow-xl border border-border-subtle overflow-hidden max-h-56 overflow-y-auto font-mono">
-                {gpuResults.map((gpu) => (
-                  <button
-                    key={gpu.id}
-                    type="button"
-                    onClick={() => selectGpu(gpu)}
-                    className="w-full text-left px-4 py-2.5 hover:bg-surface-elevated text-xs text-content-body hover:text-content-strong flex items-center justify-between border-b border-border-subtle last:border-0"
-                  >
-                    <div>
-                      <span className="font-bold text-content-strong">{gpu.model}</span>
-                      <span className="ml-2 text-[10px] text-content-muted">
-                        {gpu.vramGb}GB VRAM • {gpu.type}
-                        {gpu.laptopVariant ? " • Laptop" : ""}
-                      </span>
-                    </div>
-                    <span className="px-1.5 py-0.5 rounded bg-brand-primary/10 text-brand-primary text-[10px] font-bold border border-brand-primary/20">
-                      Score: {gpu.performanceScore}
+            {/* Popular GPU Quick Chips */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] font-mono scrollbar-none">
+              <span className="text-[10px] uppercase font-bold text-content-muted shrink-0 flex items-center gap-1">
+                <Sparkles className="h-3 w-3 text-indigo-500" />
+                Quick:
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setGpuQuery("");
+                  setShowGpuDropdown(true);
+                }}
+                className={`px-2 py-0.5 rounded-full border text-[10px] font-medium shrink-0 transition-colors ${
+                  !gpuQuery.trim()
+                    ? "bg-brand-primary text-white border-brand-primary shadow-xs"
+                    : "bg-surface-subtle border-border-subtle text-content-muted hover:text-content-strong hover:border-border-strong"
+                }`}
+              >
+                Browse All (60+)
+              </button>
+              {POPULAR_GPU_PRESETS.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => {
+                    setGpuQuery(preset);
+                    setShowGpuDropdown(true);
+                  }}
+                  className={`px-2 py-0.5 rounded-full border text-[10px] font-medium shrink-0 transition-colors ${
+                    gpuQuery.toLowerCase() === preset.toLowerCase()
+                      ? "bg-brand-primary text-white border-brand-primary shadow-xs"
+                      : "bg-surface-subtle border-border-subtle text-content-muted hover:text-content-strong hover:border-border-strong"
+                  }`}
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
+
+            {showGpuDropdown && (
+              <div className="relative z-30">
+                <div className="absolute top-0 left-0 w-full bg-surface-card rounded-xl shadow-xl border border-border-subtle overflow-hidden max-h-64 overflow-y-auto font-mono">
+                  <div className="px-3 py-1.5 bg-surface-subtle border-b border-border-subtle text-[10px] font-mono text-content-muted flex items-center justify-between">
+                    <span>
+                      {gpuResults.length > 0
+                        ? `Showing ${gpuResults.length} matching verified GPUs`
+                        : "No GPUs found matching search"}
                     </span>
-                  </button>
-                ))}
+                    <button
+                      type="button"
+                      onClick={() => setShowGpuDropdown(false)}
+                      className="text-content-muted hover:text-content-strong font-bold"
+                    >
+                      ✕ Close
+                    </button>
+                  </div>
+                  {gpuResults.length > 0 ? (
+                    gpuResults.map((gpu) => (
+                      <button
+                        key={gpu.id}
+                        type="button"
+                        onClick={() => selectGpu(gpu)}
+                        className="w-full text-left px-4 py-2.5 hover:bg-surface-elevated text-xs text-content-body hover:text-content-strong flex items-center justify-between border-b border-border-subtle last:border-0"
+                      >
+                        <div>
+                          <span className="font-bold text-content-strong">{gpu.model}</span>
+                          <span className="ml-2 text-[10px] text-content-muted">
+                            {gpu.vramGb}GB VRAM • {gpu.type}
+                            {gpu.laptopVariant ? " • Laptop" : ""}
+                          </span>
+                        </div>
+                        <span className="px-1.5 py-0.5 rounded bg-brand-primary/10 text-brand-primary text-[10px] font-bold border border-brand-primary/20">
+                          Score: {gpu.performanceScore}
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-xs text-content-muted">
+                      No matching models found. Clear the search field or switch to{" "}
+                      <span
+                        className="text-brand-primary cursor-pointer underline"
+                        onClick={() => setIsManualGpu(true)}
+                      >
+                        Manual Specification
+                      </span>
+                      .
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
