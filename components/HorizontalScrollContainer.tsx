@@ -8,6 +8,7 @@ interface HorizontalScrollContainerProps {
   className?: string;
   scrollStep?: number;
   showFadeGradients?: boolean;
+  buttonSize?: "sm" | "md";
 }
 
 export function HorizontalScrollContainer({
@@ -15,6 +16,7 @@ export function HorizontalScrollContainer({
   className = "",
   scrollStep = 240,
   showFadeGradients = true,
+  buttonSize = "md",
 }: HorizontalScrollContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -58,6 +60,13 @@ export function HorizontalScrollContainer({
     el.scrollBy({ left: offset, behavior: "smooth" });
   };
 
+  const buttonClasses =
+    buttonSize === "sm"
+      ? "h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-surface-card/95 hover:bg-surface-elevated text-content-strong border border-border-strong shadow-sm flex items-center justify-center transition-all transform hover:scale-105 active:scale-95"
+      : "h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-surface-card/95 hover:bg-surface-elevated text-content-strong border border-border-strong shadow-md flex items-center justify-center transition-all transform hover:scale-105 active:scale-95";
+
+  const iconClasses = buttonSize === "sm" ? "h-3 w-3" : "h-4 w-4";
+
   return (
     <div className={`relative flex items-center group/hscroll w-full min-w-0 ${className}`}>
       {/* Scroll Left Button */}
@@ -66,15 +75,15 @@ export function HorizontalScrollContainer({
           type="button"
           onClick={() => scrollBy(-scrollStep)}
           aria-label="Scroll left"
-          className="absolute left-0 z-20 h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-surface-card/95 hover:bg-surface-elevated text-content-strong border border-border-strong shadow-md flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 -translate-x-1"
+          className={`absolute left-0 z-20 ${buttonClasses} -translate-x-1`}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className={iconClasses} />
         </button>
       )}
 
       {/* Left Gradient Scrim */}
       {showFadeGradients && canScrollLeft && (
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface-card to-transparent pointer-events-none z-10" />
+        <div className={`absolute left-0 top-0 bottom-0 ${buttonSize === "sm" ? "w-6" : "w-8"} bg-gradient-to-r from-surface-card to-transparent pointer-events-none z-10`} />
       )}
 
       {/* Scrollable Container */}
@@ -88,7 +97,7 @@ export function HorizontalScrollContainer({
 
       {/* Right Gradient Scrim */}
       {showFadeGradients && canScrollRight && (
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface-card to-transparent pointer-events-none z-10" />
+        <div className={`absolute right-0 top-0 bottom-0 ${buttonSize === "sm" ? "w-6" : "w-8"} bg-gradient-to-l from-surface-card to-transparent pointer-events-none z-10`} />
       )}
 
       {/* Scroll Right Button */}
@@ -97,9 +106,9 @@ export function HorizontalScrollContainer({
           type="button"
           onClick={() => scrollBy(scrollStep)}
           aria-label="Scroll right"
-          className="absolute right-0 z-20 h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-surface-card/95 hover:bg-surface-elevated text-content-strong border border-border-strong shadow-md flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 translate-x-1"
+          className={`absolute right-0 z-20 ${buttonClasses} translate-x-1`}
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className={iconClasses} />
         </button>
       )}
     </div>

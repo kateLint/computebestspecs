@@ -986,34 +986,36 @@ export function SearchableHardwarePicker({
               )}
             </div>
 
-            {/* Quick Popular Searches */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[10px]">
+            {/* Quick Popular Searches with Left/Right Buttons */}
+            <div className="flex items-center gap-1.5 min-w-0 py-0.5 text-[10px]">
               <span className="text-content-muted font-mono font-bold flex items-center gap-1 shrink-0">
                 <Sparkles className="w-3 h-3 text-brand-primary" />
                 Quick:
               </span>
-              {[
-                { label: "M4 Max (64GB)", query: "m4 max", icon: "🍏" },
-                { label: "RTX 4090 (24GB)", query: "4090", icon: "🖥️" },
-                { label: "RTX 4060 Laptop", query: "4060", icon: "🎮" },
-                { label: "Ryzen 7800X3D", query: "7800x3d", icon: "⚡" },
-                { label: "MacBook Air", query: "macbook air", icon: "💻" },
-                { label: "64GB RAM", query: "64gb", icon: "🧠" },
-                { label: "Snapdragon", query: "snapdragon", icon: "🔋" },
-              ].map(item => (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery(item.query);
-                    setActiveIndex(0);
-                  }}
-                  className="px-2 py-0.5 rounded-md bg-surface-card hover:bg-surface-elevated text-content-body hover:text-content-strong border border-border-subtle hover:border-brand-primary/40 font-mono transition-all shrink-0 flex items-center gap-1"
-                >
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
-              ))}
+              <HorizontalScrollContainer buttonSize="sm" scrollStep={180} className="text-[10px]">
+                {[
+                  { label: "M4 Max (64GB)", query: "m4 max", icon: "🍏" },
+                  { label: "RTX 4090 (24GB)", query: "4090", icon: "🖥️" },
+                  { label: "RTX 4060 Laptop", query: "4060", icon: "🎮" },
+                  { label: "Ryzen 7800X3D", query: "7800x3d", icon: "⚡" },
+                  { label: "MacBook Air", query: "macbook air", icon: "💻" },
+                  { label: "64GB RAM", query: "64gb", icon: "🧠" },
+                  { label: "Snapdragon", query: "snapdragon", icon: "🔋" },
+                ].map(item => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery(item.query);
+                      setActiveIndex(0);
+                    }}
+                    className="px-2 py-0.5 rounded-md bg-surface-card hover:bg-surface-elevated text-content-body hover:text-content-strong border border-border-subtle hover:border-brand-primary/40 font-mono transition-all shrink-0 flex items-center gap-1"
+                  >
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </HorizontalScrollContainer>
             </div>
 
             {/* Category Filter Pills with Scroll Buttons */}

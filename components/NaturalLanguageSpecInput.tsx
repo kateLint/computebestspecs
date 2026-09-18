@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import { parseNaturalLanguageSpec } from "@/services/normalization/natural-language-spec-parser";
 import { HardwareProfile } from "@/lib/domain/hardware";
 import { Sparkles, CheckCircle2, AlertTriangle, ArrowRight, HelpCircle } from "lucide-react";
-
+import { HorizontalScrollContainer } from "@/components/HorizontalScrollContainer";
 import { ComputeCompanion } from "@/components/mascot/ComputeCompanion";
 
 interface NaturalLanguageSpecInputProps {
@@ -146,23 +146,25 @@ export function NaturalLanguageSpecInput({ onApplyParsedHardware }: NaturalLangu
         )}
       </div>
 
-      {/* Quick Spec Chips */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[10px]">
+      {/* Quick Spec Chips with Left/Right Buttons */}
+      <div className="flex items-center gap-1.5 min-w-0 py-0.5 text-[10px]">
         <span className="text-content-muted font-mono font-bold flex items-center gap-1 shrink-0">
           <Sparkles className="w-3 h-3 text-brand-primary" />
           Templates:
         </span>
-        {POPULAR_SPEC_TEMPLATES.map((item, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => handleSelectTemplate(item.text)}
-            className="px-2.5 py-1 rounded-lg bg-surface-subtle hover:bg-surface-elevated text-content-body hover:text-content-strong border border-border-subtle hover:border-brand-primary/40 font-mono transition-all shrink-0 flex items-center gap-1.5"
-          >
-            <span>{item.icon}</span>
-            <span className="font-semibold">{item.label}</span>
-          </button>
-        ))}
+        <HorizontalScrollContainer buttonSize="sm" scrollStep={180} className="text-[10px]">
+          {POPULAR_SPEC_TEMPLATES.map((item, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleSelectTemplate(item.text)}
+              className="px-2.5 py-1 rounded-lg bg-surface-subtle hover:bg-surface-elevated text-content-body hover:text-content-strong border border-border-subtle hover:border-brand-primary/40 font-mono transition-all shrink-0 flex items-center gap-1.5"
+            >
+              <span>{item.icon}</span>
+              <span className="font-semibold">{item.label}</span>
+            </button>
+          ))}
+        </HorizontalScrollContainer>
       </div>
 
       {/* Instant Parsed Chips */}
