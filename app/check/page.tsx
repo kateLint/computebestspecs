@@ -113,6 +113,7 @@ const DEFAULT_WORKLOADS: SelectedWorkload[] = [
 ];
 
 import { analytics } from "@/lib/observability/analytics/client";
+import { CheckProgressStepper } from "@/components/CheckProgressStepper";
 
 export default function CheckPcPage() {
   const router = useRouter();
@@ -337,26 +338,36 @@ export default function CheckPcPage() {
         </div>
       </div>
 
-      {/* 3-Step Clear Progression Indicator */}
-      <div className="grid grid-cols-3 gap-2 text-xs font-semibold text-center border-b border-border-subtle pb-4">
-        <div className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
-          <span className="w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center text-[10px] font-bold">1</span>
-          <span>Your Computer</span>
-        </div>
-        <div className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-surface-subtle text-content-strong border border-border-subtle">
-          <span className="w-5 h-5 rounded-full bg-surface-elevated text-content-muted flex items-center justify-center text-[10px] font-bold border border-border-subtle">2</span>
-          <span>Apps & Usage</span>
-        </div>
-        <div className={`flex items-center justify-center gap-1.5 p-2 rounded-xl border ${result ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-bold" : "bg-surface-subtle text-content-muted border-border-subtle"}`}>
-          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${result ? "bg-emerald-500 text-white" : "bg-surface-elevated text-content-muted border border-border-subtle"}`}>3</span>
-          <span>Results & Next Steps</span>
-        </div>
-      </div>
+      {/* Dynamic Evaluation Progression Stepper (Aware of exact user moment) */}
+      <CheckProgressStepper
+        hardware={hardware}
+        workloads={workloads}
+        result={result}
+        loading={loading}
+        isStale={isStale}
+        onStepClick={(step) => {
+          if (step === 1) {
+            document.getElementById("hardware-step-panel")?.scrollIntoView({ behavior: "smooth" });
+          } else if (step === 2) {
+            document.getElementById("workload-step-panel")?.scrollIntoView({ behavior: "smooth" });
+          } else if (step === 3) {
+            if (result) {
+              document.getElementById("results-section")?.scrollIntoView({ behavior: "smooth" });
+            } else {
+              handleEvaluate();
+            }
+          }
+        }}
+        onRunEvaluate={() => handleEvaluate()}
+      />
 
       {/* STEP 1 & 2: Hardware Input & Workload Configuration */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Hardware Input Panel */}
-        <div className="lg:col-span-6 surface-card p-5 sm:p-6 rounded-3xl border border-border-subtle space-y-4 shadow-sm">
+        <div
+          id="hardware-step-panel"
+          className="lg:col-span-6 surface-card p-5 sm:p-6 rounded-3xl border border-border-subtle space-y-4 shadow-sm"
+        >
           <div className="flex items-center justify-between border-b border-border-subtle pb-3">
             <div className="flex items-center gap-2">
               <Cpu className="h-5 w-5 text-brand-primary" />
@@ -382,7 +393,10 @@ export default function CheckPcPage() {
         </div>
 
         {/* Workload Stack Builder Panel */}
-        <div className="lg:col-span-6 surface-card p-5 sm:p-6 rounded-3xl border border-border-subtle space-y-4 shadow-sm">
+        <div
+          id="workload-step-panel"
+          className="lg:col-span-6 surface-card p-5 sm:p-6 rounded-3xl border border-border-subtle space-y-4 shadow-sm"
+        >
           <div className="flex items-center justify-between border-b border-border-subtle pb-3">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-brand-primary" />
