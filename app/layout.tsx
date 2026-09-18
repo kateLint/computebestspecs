@@ -46,8 +46,13 @@ export const metadata: Metadata = {
     "hardware bottleneck calculator",
     "spec comparison",
   ],
-  authors: [{ name: "ComputeBestSpecs Team" }],
-  creator: "ComputeBestSpecs",
+  authors: [
+    {
+      name: "Keren (Katya) Lint",
+      url: "https://www.linkedin.com/in/keren-katya-lint-4a0a3645/",
+    },
+  ],
+  creator: "Keren (Katya) Lint (@ktlint)",
   publisher: "ComputeBestSpecs",
   openGraph: {
     type: "website",
@@ -63,6 +68,7 @@ export const metadata: Metadata = {
     title: "ComputeBestSpecs — Deterministic PC Sizing",
     description:
       "Simulate multi-app concurrency, detect memory bottlenecks, and size local AI models with zero hallucinations.",
+    creator: "@ktlint",
   },
   robots: {
     index: true,
@@ -86,6 +92,12 @@ const jsonLdWebsite = {
       url: BASE_URL,
       name: "ComputeBestSpecs",
       description: "Deterministic Computer Hardware Compatibility and Workload Sizing Engine",
+      author: {
+        "@type": "Person",
+        name: "Keren (Katya) Lint",
+        url: "https://www.linkedin.com/in/keren-katya-lint-4a0a3645/",
+        sameAs: ["https://x.com/ktlint", "https://www.linkedin.com/in/keren-katya-lint-4a0a3645/"],
+      },
       potentialAction: [
         {
           "@type": "SearchAction",
@@ -103,6 +115,11 @@ const jsonLdWebsite = {
       name: "ComputeBestSpecs Sizing Engine",
       operatingSystem: "Web-based (All Modern Browsers)",
       applicationCategory: "UtilitiesApplication",
+      author: {
+        "@type": "Person",
+        name: "Keren (Katya) Lint",
+        email: "mailto:ktlint3@gmail.com",
+      },
       offers: {
         "@type": "Offer",
         price: "0",

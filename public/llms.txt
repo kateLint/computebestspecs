@@ -23,4 +23,11 @@ ComputeBestSpecs calculates whether a computer can run real-world multi-app soft
 2. **Zero Server Image Uploads**: Screenshot OCR is processed 100% locally in client-side Web Workers.
 3. **Structured Provenance**: All hardware requirements are linked to official vendor source documentation with verification timestamps.
 
+## Author & Contact
+
+- **Architect & Developer**: Keren (Katya) Lint
+- **LinkedIn**: [https://www.linkedin.com/in/keren-katya-lint-4a0a3645/](https://www.linkedin.com/in/keren-katya-lint-4a0a3645/)
+- **X / Twitter**: [@ktlint](https://x.com/ktlint)
+- **Direct Feedback & Inquiries**: ktlint3@gmail.com
+
 For full technical documentation and dataset schemas, see [llms-full.txt](https://computebestspecs.vercel.app/llms-full.txt).

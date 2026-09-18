@@ -335,6 +335,16 @@ export function SuggestCatalogModal({
               />
             </div>
 
+            <div className="p-3 rounded-xl bg-surface-secondary border border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-content-muted">
+              <span>Direct feedback, benchmark data or questions:</span>
+              <a
+                href="mailto:ktlint3@gmail.com"
+                className="font-mono font-bold text-brand-primary hover:underline"
+              >
+                ktlint3@gmail.com
+              </a>
+            </div>
+
             {/* Actions */}
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-border-subtle">
               <button

@@ -58,10 +58,59 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="pt-6 border-t border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-content-muted">
-          <p>© {new Date().getFullYear()} ComputeBestSpecs. All specifications are public benchmark & vendor standards.</p>
+        <div className="pt-6 border-t border-border-subtle flex flex-col md:flex-row items-center justify-between gap-6 text-[11px] text-content-muted">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <p>© {new Date().getFullYear()} ComputeBestSpecs.</p>
+            <span className="hidden sm:inline">•</span>
+            <p className="text-content-secondary">
+              Architected by{" "}
+              <a
+                href="https://www.linkedin.com/in/keren-katya-lint-4a0a3645/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-content-strong hover:text-brand-primary transition-colors hover:underline"
+              >
+                Keren (Katya) Lint
+              </a>
+            </p>
+          </div>
           
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <a
+              href="https://www.linkedin.com/in/keren-katya-lint-4a0a3645/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-content-strong hover:underline flex items-center gap-1.5 transition-colors text-content-body font-medium"
+            >
+              <svg className="h-3.5 w-3.5 fill-current text-[#0A66C2]" viewBox="0 0 24 24">
+                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.64 1.64 0 0 0-1.66 1.63 1.64 1.64 0 1 0 3.3 0 1.64 1.64 0 0 0-1.64-1.63Z" />
+              </svg>
+              <span>LinkedIn</span>
+            </a>
+            <span>•</span>
+            <a
+              href="https://x.com/ktlint"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-content-strong hover:underline flex items-center gap-1.5 transition-colors text-content-body font-medium"
+            >
+              <svg className="h-3 w-3 fill-current text-content-strong" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              <span>@ktlint</span>
+            </a>
+            <span>•</span>
+            <a
+              href="mailto:ktlint3@gmail.com"
+              className="hover:text-content-strong hover:underline flex items-center gap-1.5 transition-colors text-content-body font-medium"
+            >
+              <svg className="h-3.5 w-3.5 fill-none stroke-current text-amber-500" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+              <span>ktlint3@gmail.com</span>
+            </a>
+            <span>•</span>
             <Link href="/llms.txt" target="_blank" className="hover:text-content-strong hover:underline flex items-center gap-1">
               <FileText className="h-3 w-3" />
               <span>llms.txt</span>
@@ -69,7 +118,7 @@ export function Footer() {
             <span>•</span>
             <Link href="/privacy" className="hover:text-content-strong hover:underline flex items-center gap-1">
               <Lock className="h-3 w-3" />
-              <span>Privacy Policy</span>
+              <span>Privacy</span>
             </Link>
             <span>•</span>
             <button
@@ -78,7 +127,7 @@ export function Footer() {
               className="hover:text-content-strong hover:underline flex items-center gap-1 cursor-pointer"
             >
               <Sliders className="h-3 w-3" />
-              <span>Cookie & Privacy Settings</span>
+              <span>Settings</span>
             </button>
           </div>
         </div>
