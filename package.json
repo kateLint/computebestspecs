@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:db:push": "prisma db push",
     "prisma:seed": "tsx prisma/seed.ts"
