@@ -25,6 +25,7 @@ import { WhatIfSimulator } from "@/components/WhatIfSimulator";
 import { CompatibilityMap } from "@/components/CompatibilityMap";
 import { StressMySetup } from "@/components/StressMySetup";
 import { ShareModal } from "@/components/ShareModal";
+import { CalculationTransparencyInspector } from "@/components/results/CalculationTransparencyInspector";
 
 export type PerformanceTierKey =
   | "excellent"
@@ -537,8 +538,14 @@ export function ResultPageView({
         </div>
       </div>
 
-      {/* LEVEL 3 — WHAT IF? Instant Upgrade Simulator */}
-      <div className="space-y-2">
+      {/* LEVEL 3 — Interactive Transparency Inspector & WHAT IF Simulator */}
+      <div className="space-y-6">
+        <CalculationTransparencyInspector
+          hardware={hardware}
+          workloads={workloads}
+          result={result}
+        />
+
         <WhatIfSimulator
           initialHardware={hardware}
           workloads={workloads}

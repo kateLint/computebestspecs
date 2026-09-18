@@ -32,6 +32,7 @@ import { AddToComparisonButton } from "@/components/comparison/AddToComparisonBu
 import { saveCurrentDraft, getCurrentDraft } from "@/lib/comparison/storage";
 import { SpecImportModal } from "@/components/importer/SpecImportModal";
 import { computerProfileToHardwareProfile, ComputerProfile } from "@/lib/domain/computer-profile";
+import { CalculationTransparencyInspector } from "@/components/results/CalculationTransparencyInspector";
 
 const DEFAULT_HARDWARE: HardwareProfile = {
   cpu: {
@@ -623,8 +624,14 @@ export default function CheckPcPage() {
             </div>
           </div>
 
-          {/* STEP 5: What-If Upgrade Simulator */}
-          <div className="space-y-2">
+          {/* STEP 5: Interactive Transparency Inspector & What-If Upgrade Simulator */}
+          <div className="space-y-6">
+            <CalculationTransparencyInspector
+              hardware={hardware}
+              workloads={workloads}
+              result={result}
+            />
+
             <WhatIfSimulator
               initialHardware={hardware}
               workloads={workloads}

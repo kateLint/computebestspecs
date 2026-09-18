@@ -25,7 +25,7 @@ Traditional system requirements checkers rely on naive comparisons like `userRam
 
 - **Framework:** Next.js 14 (App Router)
 - **Language:** TypeScript (Strict mode)
-- **Database & ORM:** Prisma with SQLite (zero-config local) & PostgreSQL (Docker/production)
+- **Database & ORM:** Prisma with PostgreSQL (same engine locally, via Docker, and in production)
 - **Validation:** Zod schemas
 - **Styling:** Tailwind CSS with modern dark mode and glassmorphism
 - **Testing:** Vitest unit & integration test suites
@@ -47,11 +47,14 @@ npm install
 # 2. Setup environment variables
 cp .env.example .env
 
-# 3. Initialize database & seed verified hardware/software catalog
-npx prisma db push
+# 3. Start a local Postgres (matches .env.example's DATABASE_URL)
+docker compose up -d db
+
+# 4. Apply migrations & seed verified hardware/software catalog
+npx prisma migrate deploy
 npm run prisma:seed
 
-# 4. Start development server
+# 5. Start development server
 npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
