@@ -313,4 +313,31 @@ describe("Saved Comparison Feature", () => {
     expect(laptopTradeOff?.upgradeability).toBe("Limited");
     expect(laptopTradeOff?.cons.length).toBeGreaterThan(0);
   });
+
+  it("successfully adds popular preset configurations to comparison set", async () => {
+    const { POPULAR_PRESETS } = await import("@/components/comparison/AddComputerModal");
+    expect(POPULAR_PRESETS.length).toBeGreaterThanOrEqual(4);
+
+    const preset1 = POPULAR_PRESETS[0];
+    const res1 = addComputerToComparison({
+      name: preset1.name,
+      hardware: {
+        cpu: preset1.cpu,
+        gpu: preset1.gpu,
+        ramGb: preset1.ramGb,
+        storageGb: preset1.storageGb,
+        os: preset1.os,
+        formFactor: preset1.formFactor,
+        rawHardwareProfile: preset1.rawHardwareProfile,
+      },
+      workloads: [],
+      isSimultaneous: true,
+      engineVersion: "1.0.0",
+      catalogVersion: "1.0.0",
+    });
+
+    expect(res1.success).toBe(true);
+    expect(getComparisonSet().items.length).toBe(1);
+    expect(getComparisonSet().items[0].name).toBe(preset1.name);
+  });
 });

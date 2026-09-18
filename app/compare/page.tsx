@@ -16,6 +16,9 @@ import {
   Layers,
   ArrowUpRight,
   Info,
+  Laptop,
+  Monitor,
+  CheckCircle2,
 } from "lucide-react";
 import {
   getComparisonSet,
@@ -25,10 +28,12 @@ import {
   MAX_COMPARISON_ITEMS,
   exportComparisonSetToJson,
   importComparisonItemFromJson,
+  addComputerToComparison,
 } from "@/lib/comparison/storage";
 import { ComparisonSet, EvaluatedComparisonItem, ComparisonAnalysis } from "@/lib/comparison/types";
 import { analyzeComparisonSet } from "@/lib/comparison/engine";
 import { evaluateCompatibility } from "@/lib/engine/evaluate";
+import { AddComputerModal, POPULAR_PRESETS, PresetPC } from "@/components/comparison/AddComputerModal";
 
 export default function ComparePage() {
   const router = useRouter();
@@ -36,6 +41,7 @@ export default function ComparePage() {
   const [analysis, setAnalysis] = useState<ComparisonAnalysis | null>(null);
   const [onlyDifferences, setOnlyDifferences] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
     const current = getComparisonSet();
@@ -140,36 +146,131 @@ export default function ComparePage() {
     e.target.value = "";
   };
 
+  const handleAddPresetFromEmptyState = (preset: PresetPC) => {
+    const current = getComparisonSet();
+    addComputerToComparison({
+      name: preset.name,
+      hardware: {
+        cpu: preset.cpu,
+        gpu: preset.gpu,
+        ramGb: preset.ramGb,
+        storageGb: preset.storageGb,
+        os: preset.os,
+        formFactor: preset.formFactor,
+        rawHardwareProfile: preset.rawHardwareProfile,
+      },
+      workloads: current.sharedWorkloads,
+      isSimultaneous: current.sharedIsSimultaneous,
+      engineVersion: "1.0.0",
+      catalogVersion: "1.0.0",
+    });
+  };
+
   if (!comparisonSet || comparisonSet.items.length === 0) {
     return (
-      <div className="min-h-[calc(100dvh-5rem)] bg-surface-main text-content-strong py-16 px-4 font-sans">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
-          <div className="inline-flex p-4 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary">
-            <Scale className="w-10 h-10" />
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-content-strong">
-            Side-by-Side PC Comparison
-          </h1>
-          <p className="text-content-body max-w-lg mx-auto text-sm leading-relaxed">
-            You don&apos;t have any computers saved for comparison yet. Complete a computer check and click{" "}
-            <span className="text-brand-primary font-semibold">&quot;Add to Comparison&quot;</span> to compare up to 3 systems under the exact same workload.
-          </p>
+      <div className="min-h-[calc(100dvh-5rem)] bg-surface-main text-content-strong py-12 px-4 md:px-8 font-sans">
+        <div className="max-w-4xl mx-auto space-y-10 text-center">
+          {/* Hero Empty Banner */}
+          <div className="space-y-4">
+            <div className="inline-flex p-4 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary">
+              <Scale className="w-10 h-10" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-content-strong">
+              Side-by-Side PC Comparison
+            </h1>
+            <p className="text-content-body max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+              Compare up to 3 computer specifications directly side-by-side to evaluate compute capacity, memory bottlenecks, GPU tiers, and upgrade potential under unified workloads.
+            </p>
 
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="/check"
-              className="touch-target px-5 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-hover text-[var(--on-brand)] font-bold text-sm transition-all shadow-md"
-            >
-              Evaluate a Computer
-            </Link>
-            <Link
-              href="/recommend"
-              className="touch-target px-5 py-2.5 rounded-xl bg-surface-card hover:bg-surface-elevated text-content-strong font-semibold text-sm border border-border-subtle transition-all"
-            >
-              Explore Prebuilt Tiers
-            </Link>
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                id="cbs-open-add-spec-modal-btn"
+                onClick={() => setIsAddModalOpen(true)}
+                className="touch-target px-6 py-3 rounded-2xl bg-brand-primary hover:bg-brand-primary-hover text-white font-bold text-sm transition-all shadow-lg flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>+ Add Computer Specification</span>
+              </button>
+
+              <Link
+                href="/check"
+                className="touch-target px-5 py-3 rounded-2xl bg-surface-card hover:bg-surface-elevated text-content-strong font-semibold text-sm border border-border-subtle transition-all"
+              >
+                Evaluate Full Computer Check
+              </Link>
+
+              <label className="touch-target px-4 py-3 rounded-2xl bg-surface-card hover:bg-surface-elevated text-content-body font-semibold text-xs border border-border-subtle transition-all cursor-pointer inline-flex items-center gap-1.5">
+                <span>Import JSON</span>
+                <input
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={handleImportJson}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Quick Presets Starter Grid */}
+          <div className="text-left space-y-4 pt-4 border-t border-border-subtle">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-content-strong flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-brand-primary" />
+                  <span>Start with Popular Reference Architectures (1-Click)</span>
+                </h3>
+                <p className="text-xs text-content-muted mt-0.5">
+                  Click any system below to immediately populate your comparison matrix:
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {POPULAR_PRESETS.slice(0, 4).map((preset) => (
+                <div
+                  key={preset.id}
+                  className="p-4 rounded-2xl bg-surface-card hover:bg-surface-elevated border border-border-subtle hover:border-brand-primary/40 transition-all flex flex-col justify-between gap-3 shadow-xs group text-left"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${preset.badgeColor}`}>
+                        {preset.badge}
+                      </span>
+                      <span className="text-[10px] text-content-muted capitalize flex items-center gap-1">
+                        {preset.formFactor === "laptop" ? <Laptop className="w-3 h-3" /> : <Monitor className="w-3 h-3" />}
+                        {preset.formFactor}
+                      </span>
+                    </div>
+                    <h4 className="text-xs font-bold text-content-strong group-hover:text-brand-primary transition-colors line-clamp-1">
+                      {preset.name}
+                    </h4>
+                    <p className="text-[11px] text-content-muted mt-1 line-clamp-2 leading-relaxed">
+                      {preset.description}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddPresetFromEmptyState(preset)}
+                    className="w-full py-1.5 px-2.5 rounded-xl bg-surface-subtle hover:bg-brand-primary text-content-strong hover:text-white text-xs font-bold border border-border-subtle hover:border-brand-primary transition-all flex items-center justify-center gap-1 shadow-xs"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add to Compare</span>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* Add Modal */}
+        <AddComputerModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          sharedWorkloads={comparisonSet?.sharedWorkloads || []}
+          sharedIsSimultaneous={comparisonSet?.sharedIsSimultaneous ?? true}
+        />
       </div>
     );
   }
@@ -210,13 +311,15 @@ export default function ComparePage() {
             </button>
 
             {items.length < MAX_COMPARISON_ITEMS ? (
-              <Link
-                href="/check"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-brand-primary hover:bg-brand-primary-hover text-[var(--on-brand)] text-xs font-bold transition-all shadow-xs"
+              <button
+                type="button"
+                id="cbs-header-add-computer-btn"
+                onClick={() => setIsAddModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-bold transition-all shadow-xs"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add Computer</span>
-              </Link>
+                <span>+ Add Computer Spec</span>
+              </button>
             ) : (
               <span className="text-[11px] text-content-muted bg-surface-subtle px-3 py-1.5 rounded-xl border border-border-subtle">
                 Max 3 slots filled
@@ -261,12 +364,13 @@ export default function ComparePage() {
                 You can compare up to three computers. Remove or replace one to add another specification.
               </span>
             </div>
-            <Link
-              href="/check"
-              className="text-brand-primary hover:underline font-semibold shrink-0"
+            <button
+              type="button"
+              onClick={handleClearAll}
+              className="text-rose-500 hover:underline font-semibold shrink-0"
             >
-              New Check &rarr;
-            </Link>
+              Reset Matrix
+            </button>
           </div>
         )}
 
@@ -279,12 +383,14 @@ export default function ComparePage() {
                 You have 1 computer saved. Add a second computer to see side-by-side trade-offs, bottlenecks, and score deltas.
               </span>
             </div>
-            <Link
-              href="/check"
-              className="px-3.5 py-1.5 rounded-xl bg-brand-primary hover:bg-brand-primary-hover text-[var(--on-brand)] font-bold shadow-xs transition-all"
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-brand-primary hover:bg-brand-primary-hover text-white font-bold shadow-xs transition-all flex items-center gap-1"
             >
-              Add Second Computer
-            </Link>
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Second Computer</span>
+            </button>
           </div>
         )}
 
@@ -335,21 +441,23 @@ export default function ComparePage() {
                     )}
                   </th>
                 ))}
-                {/* Fill empty slots up to 3 */}
+                {/* Fill empty slots up to 3 with interactive Add Card */}
                 {Array.from({ length: Math.max(0, MAX_COMPARISON_ITEMS - items.length) }).map((_, idx) => (
                   <th
                     key={`empty_${idx}`}
-                    className="p-4 w-1/4 align-middle text-center border-l border-border-subtle bg-surface-subtle/40"
+                    className="p-4 w-1/4 align-middle text-center border-l border-border-subtle bg-surface-subtle/30"
                   >
                     <div className="py-6 flex flex-col items-center justify-center text-content-muted space-y-2">
                       <Scale className="w-6 h-6 stroke-1 text-content-muted" />
                       <span className="text-xs font-mono">Slot {items.length + idx + 1} Empty</span>
-                      <Link
-                        href="/check"
-                        className="text-xs text-brand-primary hover:underline font-semibold"
+                      <button
+                        type="button"
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="text-xs px-3 py-1 rounded-xl bg-surface-card hover:bg-brand-primary text-brand-primary hover:text-white border border-border-subtle hover:border-brand-primary transition-all font-semibold flex items-center gap-1 shadow-xs"
                       >
-                        + Add Computer
-                      </Link>
+                        <Plus className="w-3 h-3" />
+                        <span>Add Computer Spec</span>
+                      </button>
                     </div>
                   </th>
                 ))}
@@ -482,6 +590,14 @@ export default function ComparePage() {
             Clear saved data
           </button>
         </div>
+
+        {/* Add Modal */}
+        <AddComputerModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          sharedWorkloads={comparisonSet?.sharedWorkloads || []}
+          sharedIsSimultaneous={comparisonSet?.sharedIsSimultaneous ?? true}
+        />
       </div>
     </div>
   );
