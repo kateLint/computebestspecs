@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { HardwareRequirements } from "@/lib/domain/software";
 import { HorizontalScrollContainer } from "@/components/HorizontalScrollContainer";
+import { SuggestCatalogModal } from "@/components/catalog/SuggestCatalogModal";
 
 export interface CatalogSoftwareItem {
   id: string;
@@ -65,6 +66,7 @@ export function SoftwareCatalogView({ initialSoftware }: SoftwareCatalogViewProp
   const [selectedPlatform, setSelectedPlatform] = useState<string>("all");
   const [selectedQuality, setSelectedQuality] = useState<string>("all");
   const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
+  const [isSuggestOpen, setIsSuggestOpen] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const categories = useMemo(() => {
@@ -508,20 +510,30 @@ export function SoftwareCatalogView({ initialSoftware }: SoftwareCatalogViewProp
           <Database className="h-8 w-8 text-content-muted mx-auto" />
           <h3 className="text-base font-bold text-content-strong">No software matched your filter criteria</h3>
           <p className="text-xs text-content-body max-w-md mx-auto">
-            Try resetting your search query or choosing &quot;All Categories&quot; to view the full directory.
+            Try resetting your search query or suggest this application for catalog addition.
           </p>
-          <button
-            type="button"
-            onClick={() => {
-              setSearchQuery("");
-              setSelectedCategory("all");
-              setSelectedPlatform("all");
-              setSelectedQuality("all");
-            }}
-            className="touch-target px-4 py-2 rounded-xl bg-brand-primary text-white text-xs font-mono font-bold"
-          >
-            Reset All Filters
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedCategory("all");
+                setSelectedPlatform("all");
+                setSelectedQuality("all");
+              }}
+              className="touch-target px-4 py-2 rounded-xl bg-surface-subtle border border-border-subtle text-content-strong text-xs font-mono font-bold hover:bg-surface-elevated"
+            >
+              Reset Filters
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsSuggestOpen(true)}
+              className="touch-target px-4 py-2 rounded-xl bg-brand-primary text-white text-xs font-mono font-bold inline-flex items-center gap-1.5"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Suggest Missing App</span>
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -675,6 +687,34 @@ export function SoftwareCatalogView({ initialSoftware }: SoftwareCatalogViewProp
           })}
         </div>
       )}
+
+      {/* Suggest Application Banner */}
+      <div className="surface-card p-6 sm:p-8 rounded-3xl border border-border-subtle bg-gradient-to-r from-brand-primary/5 via-surface-card to-brand-primary/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="space-y-1 text-center sm:text-left">
+          <h4 className="text-sm font-bold text-content-strong flex items-center justify-center sm:justify-start gap-2">
+            <Sparkles className="h-4 w-4 text-brand-primary" />
+            <span>Missing a software or creative tool?</span>
+          </h4>
+          <p className="text-xs text-content-muted">
+            Submit official vendor specifications for inclusion in our deterministic benchmark catalog.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsSuggestOpen(true)}
+          className="px-5 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-bold transition-all inline-flex items-center gap-2 shadow-xs shrink-0 cursor-pointer"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          <span>Suggest Application</span>
+        </button>
+      </div>
+
+      <SuggestCatalogModal
+        isOpen={isSuggestOpen}
+        onClose={() => setIsSuggestOpen(false)}
+        defaultType="software"
+        initialItemName={searchQuery}
+      />
     </div>
   );
 }

@@ -1,11 +1,14 @@
 "use client";
 
+import React, { useState } from "react";
 import Link from "next/link";
-import { Cpu, ShieldCheck, Sliders, Lock } from "lucide-react";
+import { Cpu, ShieldCheck, Sliders, Lock, Sparkles, FileText } from "lucide-react";
 import { useConsent } from "./consent/ConsentProvider";
+import { SuggestCatalogModal } from "./catalog/SuggestCatalogModal";
 
 export function Footer() {
   const { openPrivacySettings } = useConsent();
+  const [isSuggestOpen, setIsSuggestOpen] = useState(false);
 
   return (
     <footer className="w-full border-t border-border-subtle bg-surface-secondary text-content-body py-10 mt-20">
@@ -36,9 +39,17 @@ export function Footer() {
             <Link href="/software" className="hover:text-brand-primary transition-colors">
               Software Catalog
             </Link>
-            <Link href="/fit" className="hover:text-brand-primary transition-colors">
-              Advanced Fit
+            <Link href="/compare" className="hover:text-brand-primary transition-colors">
+              Comparison Matrix
             </Link>
+            <button
+              type="button"
+              onClick={() => setIsSuggestOpen(true)}
+              className="hover:text-brand-primary transition-colors inline-flex items-center gap-1 text-brand-primary font-bold cursor-pointer"
+            >
+              <Sparkles className="h-3 w-3" />
+              <span>Suggest Specs</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-content-muted">
@@ -50,7 +61,12 @@ export function Footer() {
         <div className="pt-6 border-t border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-content-muted">
           <p>© {new Date().getFullYear()} ComputeBestSpecs. All specifications are public benchmark & vendor standards.</p>
           
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <Link href="/llms.txt" target="_blank" className="hover:text-content-strong hover:underline flex items-center gap-1">
+              <FileText className="h-3 w-3" />
+              <span>llms.txt</span>
+            </Link>
+            <span>•</span>
             <Link href="/privacy" className="hover:text-content-strong hover:underline flex items-center gap-1">
               <Lock className="h-3 w-3" />
               <span>Privacy Policy</span>
@@ -67,6 +83,11 @@ export function Footer() {
           </div>
         </div>
       </div>
+
+      <SuggestCatalogModal
+        isOpen={isSuggestOpen}
+        onClose={() => setIsSuggestOpen(false)}
+      />
     </footer>
   );
 }

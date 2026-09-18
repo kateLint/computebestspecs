@@ -1,0 +1,157 @@
+# ComputeBestSpecs (CBS) — Complete Technical Specification & Model Reference
+
+> Deterministic Hardware Compatibility, Concurrency Modeling, and Workload Sizing Engine.
+> Canonical Base URL: https://computebestspecs.vercel.app
+
+---
+
+## 1. System Overview & Philosophy
+
+ComputeBestSpecs provides deterministic evaluation of computer hardware capabilities against complex, concurrent professional software workloads. Unlike heuristic or LLM-generated recommendations, CBS uses:
+
+1. **Deterministic Authority**: Every compatibility score, bottleneck identification, and headroom metric is generated via exact mathematical formulas from verified vendor requirements and empirical benchmarks (Blender Open Data, Phoronix, Llama.cpp decode tokens/sec, SPECviewperf).
+2. **Client-Side Privacy Boundaries**: Spec OCR and image analysis run 100% locally in browser Web Workers using client-side Tesseract.js. No user screenshots, hardware dumps, or telemetry images are ever transmitted to any remote server.
+3. **Structured Provenance**: Every software requirement is version-locked, timestamped, and linked to vendor documentation.
+4. **Multi-App Concurrency**: Workloads are modeled with concurrent base OS footprint, background process reserves, shared VRAM partitioning, and CPU thread contention.
+
+---
+
+## 2. Core Mathematical Models
+
+### 2.1 RAM Concurrency Model
+The total RAM required by an active workflow stack $S = \{w_1, w_2, \dots, w_n\}$ is modeled as:
+
+$$RAM_{total} = RAM_{OS} + \sum_{i=1}^n RAM_{w_i} \cdot \kappa_{concurrency} + RAM_{headroom}$$
+
+Where:
+- $RAM_{OS} = 3.5 \text{ GB (Windows 11 / macOS base)}$
+- $\kappa_{concurrency} = 0.85 \text{ for secondary background apps}$
+- $RAM_{headroom} = \max(2.0 \text{ GB}, 0.10 \times \sum RAM_{w_i})$
+
+### 2.2 Local AI / LLM Sizing Formulas
+For a transformer LLM with parameter count $P$ (in billions), quantization bit-width $B_w$ (bits per weight), context length $C$ (tokens), batch size $b$, and hidden dimension $d_{model}$, layers $L$, and attention heads $H$:
+
+#### Weight Memory:
+$$VRAM_{weights} = \frac{P \times B_w}{8} \times 1.15 \text{ GB (including 15\% runtime graph overhead)}$$
+
+#### KV Cache Memory (FP16):
+$$VRAM_{KV} = 2 \times L \times H \times d_{head} \times C \times b \times 2 \text{ bytes}$$
+$$VRAM_{KV} \approx \frac{2 \times P_{arch\_factor} \times C \times b}{10^9} \text{ GB}$$
+
+#### Total VRAM Requirement:
+$$VRAM_{req} = VRAM_{weights} + VRAM_{KV} + VRAM_{context\_buffer}$$
+
+#### Token Throughput Estimation:
+$$\text{Tokens/sec} \approx \min\left(\frac{\text{Memory Bandwidth (GB/s)}}{\text{Model Size (GB)}}, \frac{\text{GPU TFLOPS}}{\text{FLOPs per token}}\right) \times \eta_{arch}$$
+
+---
+
+## 3. Web Endpoints & UI Pages
+
+- `https://computebestspecs.vercel.app/` — Interactive Landing Page & Quick Evaluation Matrix.
+- `https://computebestspecs.vercel.app/check` — Hardware Evaluator with screenshot OCR, plain text parse, and manual component selection.
+- `https://computebestspecs.vercel.app/recommend` — Workflow-to-Hardware Recommendation Engine across budget tiers.
+- `https://computebestspecs.vercel.app/ai` — Local AI & LLM Model Sizing Calculator (Llama 3, Mistral, DeepSeek, Gemma, Qwen).
+- `https://computebestspecs.vercel.app/compare` — 3-Slot Side-by-Side Computer Profile Comparison Matrix.
+- `https://computebestspecs.vercel.app/software` — Verified Software Requirements & Workload Catalog.
+- `https://computebestspecs.vercel.app/fit` — Advanced Multi-App Fit Matrix with granular workload dials.
+- `https://computebestspecs.vercel.app/privacy` — Privacy Architecture, Local-First Statement, and Zero-Data-Sale Guarantees.
+
+---
+
+## 4. Machine APIs
+
+### 4.1 Compatibility Evaluation API
+- **Endpoint**: `POST /api/compatibility/evaluate`
+- **Headers**: `Content-Type: application/json`
+- **Request Body**:
+```json
+{
+  "profile": {
+    "name": "Custom Build",
+    "cpu": { "name": "Intel Core i7-14700K", "cores": 20, "score": 92 },
+    "gpu": { "name": "NVIDIA GeForce RTX 4070", "vramGb": 12, "score": 88 },
+    "ram": { "capacityGb": 32, "type": "DDR5" },
+    "storage": { "capacityGb": 1000, "type": "NVME_SSD" }
+  },
+  "workloadIds": ["blender-cycles-rendering", "docker-dev-stack", "vscode-heavy"]
+}
+```
+- **Response**:
+```json
+{
+  "verdict": "RECOMMENDED",
+  "score": 89,
+  "bottlenecks": [],
+  "componentAnalysis": {
+    "cpu": { "status": "EXCELLENT", "utilizationEstimated": 65 },
+    "gpu": { "status": "EXCELLENT", "vramHeadroomGb": 4.5 },
+    "ram": { "status": "GOOD", "availableGb": 32, "requiredGb": 22.5 }
+  },
+  "warnings": []
+}
+```
+
+### 4.2 System Health & Telemetry
+- **Endpoint**: `GET /api/health`
+- **Response**:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-09-18T12:00:00.000Z",
+  "version": "1.0.0",
+  "environment": "production"
+}
+```
+
+---
+
+## 5. Canonical Data Schemas
+
+### 5.1 ComputerProfile Schema
+```typescript
+export interface ComputerProfile {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  hardware: {
+    cpu: {
+      name: string;
+      cores?: number;
+      threads?: number;
+      benchmarkScore?: number;
+      integratedGpu?: boolean;
+    };
+    gpu: {
+      name: string;
+      vramGb: number;
+      benchmarkScore?: number;
+      isDiscrete: boolean;
+    };
+    ram: {
+      capacityGb: number;
+      generation?: "DDR4" | "DDR5" | "LPDDR5" | "UNIFIED";
+      speedMhz?: number;
+    };
+    storage: {
+      capacityGb: number;
+      type: "NVME_SSD" | "SATA_SSD" | "HDD";
+    };
+  };
+  provenance: {
+    source: "MANUAL" | "OCR_SCREENSHOT" | "TEXT_IMPORT" | "PRESET";
+    extractedAt: string;
+    confidenceScore: number;
+    unresolvedFields?: string[];
+  };
+}
+```
+
+---
+
+## 6. Security, Compliance & Data Rights
+
+- **Zero Telemetry on Private Hardware**: OCR processing is executed inside ephemeral sandboxed Web Workers with zero network outbound calls.
+- **Content Integrity**: All algorithms and dataset hashes are open and auditable.
+- **License**: Documentation and open datasets are licensed under CC-BY-4.0. Code is MIT licensed.

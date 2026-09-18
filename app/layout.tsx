@@ -28,13 +28,95 @@ export const viewport: Viewport = {
   ],
 };
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://computebestspecs.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: {
     default: "ComputeBestSpecs — Find the Right PC for Your Workload",
     template: "%s — ComputeBestSpecs",
   },
   description:
-    "Check whether a PC can handle your real workload, identify bottlenecks, and find the hardware that fits how you actually work.",
+    "Check whether a PC can handle your real workload, identify bottlenecks, size local LLM VRAM, and compare hardware with pure deterministic logic.",
+  keywords: [
+    "PC hardware compatibility",
+    "workload sizing",
+    "local LLM VRAM calculator",
+    "system requirements checker",
+    "hardware bottleneck calculator",
+    "spec comparison",
+  ],
+  authors: [{ name: "ComputeBestSpecs Team" }],
+  creator: "ComputeBestSpecs",
+  publisher: "ComputeBestSpecs",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: BASE_URL,
+    title: "ComputeBestSpecs — Deterministic PC Hardware & Workload Sizing",
+    description:
+      "Deterministic computer hardware compatibility, workload concurrency modeling, local LLM sizing, and 3-slot spec comparison.",
+    siteName: "ComputeBestSpecs",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ComputeBestSpecs — Deterministic PC Sizing",
+    description:
+      "Simulate multi-app concurrency, detect memory bottlenecks, and size local AI models with zero hallucinations.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
+
+const jsonLdWebsite = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${BASE_URL}/#website`,
+      url: BASE_URL,
+      name: "ComputeBestSpecs",
+      description: "Deterministic Computer Hardware Compatibility and Workload Sizing Engine",
+      potentialAction: [
+        {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${BASE_URL}/software?q={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
+        },
+      ],
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${BASE_URL}/#app`,
+      name: "ComputeBestSpecs Sizing Engine",
+      operatingSystem: "Web-based (All Modern Browsers)",
+      applicationCategory: "UtilitiesApplication",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      featureList: [
+        "Multi-app concurrency RAM & VRAM modeling",
+        "Deterministic bottleneck detection",
+        "Local LLM parameter & KV cache calculator",
+        "Client-side zero-upload screenshot OCR",
+        "3-slot hardware comparison matrix",
+      ],
+    },
+  ],
 };
 
 const themeBootstrapScript = `
@@ -90,6 +172,10 @@ export default function RootLayout({
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
+        />
       </head>
       <body className={`${inter.variable} ${jetbrainsMono.variable} app-shell font-sans antialiased bg-surface-main text-content-body`}>
         {/* Accessible Skip to Main Content Link (WCAG 2.2 AA) */}

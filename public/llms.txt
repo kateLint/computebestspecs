@@ -1,0 +1,26 @@
+# ComputeBestSpecs (CBS)
+
+> Deterministic Computer Hardware Compatibility, Workload Concurrency, and Recommendation Engine.
+
+ComputeBestSpecs calculates whether a computer can run real-world multi-app software stacks without performance bottlenecks or memory exhaustion. It uses verified vendor requirements, benchmark datasets (Blender Open Data, Phoronix, Llama.cpp decode tokens/sec), and mathematical concurrency models.
+
+## Core Capabilities & Endpoints
+
+- [Check My Computer](https://computebestspecs.vercel.app/check): Evaluate custom CPU, GPU, RAM, VRAM, and storage against multi-app workflows. Includes in-browser screenshot OCR and plain text spec import.
+- [Find a Computer (Recommend)](https://computebestspecs.vercel.app/recommend): Find balanced hardware specifications for specific workflows (Software Development, 3D Rendering, Video Production, Local AI) across budget tiers.
+- [Local AI & LLM Sizing](https://computebestspecs.vercel.app/ai): Sizing transformer models (7B to 70B+), KV cache memory scaling, quantization loss (FP16 to Q2), and tokens/second estimation.
+- [Side-by-Side Comparison Matrix](https://computebestspecs.vercel.app/compare): Compare up to 3 computer profiles under identical workloads, highlighting bottlenecks and meaningful differences.
+- [Software & Requirements Catalog](https://computebestspecs.vercel.app/software): Explore verified hardware requirements and workload intensity profiles for professional software.
+
+## Key APIs
+
+- `POST /api/compatibility/evaluate`: Deterministic evaluation of a hardware profile against an array of workloads.
+- `GET /api/health`: Health status and engine version telemetry.
+
+## System Invariants & Guarantees
+
+1. **Deterministic Authority**: Compatibility scores and bottlenecks are computed by reproducible mathematical formulas, never hallucinated by generative models.
+2. **Zero Server Image Uploads**: Screenshot OCR is processed 100% locally in client-side Web Workers.
+3. **Structured Provenance**: All hardware requirements are linked to official vendor source documentation with verification timestamps.
+
+For full technical documentation and dataset schemas, see [llms-full.txt](https://computebestspecs.vercel.app/llms-full.txt).
