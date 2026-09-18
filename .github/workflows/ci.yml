@@ -37,6 +37,12 @@ jobs:
           node-version: 20
           cache: npm
 
+      # Pin npm to match the version package-lock.json was generated with —
+      # older/newer npm resolves the dependency tree differently and npm ci
+      # rejects the mismatch. Keep in sync with the same pin in Dockerfile.
+      - name: Pin npm version
+        run: npm install -g npm@11.6.2
+
       - name: Install dependencies
         run: npm ci
 
