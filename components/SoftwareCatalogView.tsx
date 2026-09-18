@@ -19,6 +19,9 @@ import {
   AlertTriangle,
   Clock,
   X,
+  Laptop,
+  RotateCcw,
+  Filter,
 } from "lucide-react";
 import { HardwareRequirements } from "@/lib/domain/software";
 import { HorizontalScrollContainer } from "@/components/HorizontalScrollContainer";
@@ -450,56 +453,121 @@ export function SoftwareCatalogView({ initialSoftware }: SoftwareCatalogViewProp
           )}
         </div>
 
-        {/* Filter Badges / Selectors */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
-          {/* Category Chips with Horizontal Scroll Buttons */}
-          <div className="flex-1 min-w-0">
-            <HorizontalScrollContainer scrollStep={280}>
-              <span className="text-content-muted font-semibold uppercase text-[10px] mr-1 shrink-0">Category:</span>
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1 rounded-lg font-medium transition-all capitalize whitespace-nowrap shrink-0 ${
-                    selectedCategory === cat
-                      ? "bg-brand-primary text-white font-bold shadow-xs"
-                      : "bg-surface-subtle hover:bg-surface-elevated text-content-secondary border border-border-subtle"
-                  }`}
-                >
-                  {cat === "all" ? "All Categories" : cat}
-                </button>
-              ))}
-            </HorizontalScrollContainer>
+        {/* Filter Toolbar: Row 1 - Category Chips */}
+        <div className="pt-1">
+          <HorizontalScrollContainer scrollStep={260} buttonSize="sm">
+            <span className="text-content-muted font-mono font-bold uppercase text-[10px] mr-2 shrink-0 flex items-center gap-1">
+              <Layers className="w-3 h-3 text-brand-primary" />
+              Category:
+            </span>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all capitalize whitespace-nowrap shrink-0 ${
+                  selectedCategory === cat
+                    ? "bg-brand-primary text-white font-bold shadow-xs scale-[1.02]"
+                    : "bg-surface-subtle hover:bg-surface-elevated text-content-secondary border border-border-subtle hover:border-brand-primary/30"
+                }`}
+              >
+                {cat === "all" ? "All Categories" : cat}
+              </button>
+            ))}
+          </HorizontalScrollContainer>
+        </div>
+
+        {/* Filter Toolbar: Row 2 - Color-Differentiated Platform & Verification States */}
+        <div className="pt-3 border-t border-border-subtle flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs bg-surface-subtle/30 -mx-4 -mb-4 p-3.5 rounded-b-2xl">
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Platform Filter (Distinct Purple / Indigo Color Palette) */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1 shrink-0">
+                <Laptop className="w-3 h-3 text-indigo-400" />
+                Platform:
+              </span>
+              <div className="inline-flex rounded-xl p-0.5 bg-surface-main border border-indigo-500/20 shadow-2xs">
+                {[
+                  { value: "all", label: "All" },
+                  { value: "windows", label: "Windows" },
+                  { value: "macos", label: "macOS" },
+                  { value: "linux", label: "Linux" },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSelectedPlatform(opt.value)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                      selectedPlatform === opt.value
+                        ? "bg-indigo-600 text-white font-bold shadow-xs"
+                        : "text-content-muted hover:text-indigo-400 hover:bg-indigo-500/10"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Verification State Filter (Distinct Emerald / Green / Amber Palette) */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-500 flex items-center gap-1 shrink-0">
+                <ShieldCheck className="w-3 h-3 text-emerald-500" />
+                Verification:
+              </span>
+              <div className="inline-flex rounded-xl p-0.5 bg-surface-main border border-emerald-500/20 shadow-2xs">
+                {[
+                  { value: "all", label: "All States" },
+                  { value: "verified", label: "✓ Verified Only" },
+                  { value: "partial", label: "⚠ Partial" },
+                  { value: "stale", label: "Stale" },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSelectedQuality(opt.value)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                      selectedQuality === opt.value
+                        ? opt.value === "verified"
+                          ? "bg-emerald-600 text-white font-bold shadow-xs"
+                          : opt.value === "partial"
+                          ? "bg-amber-600 text-white font-bold shadow-xs"
+                          : "bg-emerald-700 text-white font-bold shadow-xs"
+                        : "text-content-muted hover:text-emerald-500 hover:bg-emerald-500/10"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Secondary Filters (Platform & Quality) */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Platform Filter */}
-            <select
-              value={selectedPlatform}
-              onChange={(e) => setSelectedPlatform(e.target.value)}
-              className="px-2.5 py-1 rounded-lg bg-surface-subtle border border-border-subtle text-content-secondary font-medium text-xs focus:outline-none focus:border-brand-primary"
-              aria-label="Filter by Platform"
-            >
-              <option value="all">All Platforms</option>
-              <option value="windows">Windows</option>
-              <option value="macos">macOS</option>
-              <option value="linux">Linux</option>
-            </select>
+          {/* Right Side: Active count & Quick Reset */}
+          <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+            <span className="text-[11px] font-mono text-content-muted">
+              {filteredSoftware.length} {filteredSoftware.length === 1 ? "app" : "apps"}
+            </span>
 
-            {/* Quality Filter */}
-            <select
-              value={selectedQuality}
-              onChange={(e) => setSelectedQuality(e.target.value)}
-              className="px-2.5 py-1 rounded-lg bg-surface-subtle border border-border-subtle text-content-secondary font-medium text-xs focus:outline-none focus:border-brand-primary"
-              aria-label="Filter by Data Quality"
-            >
-              <option value="all">All Verification States</option>
-              <option value="verified">Verified Only</option>
-              <option value="partial">Partial Specs</option>
-              <option value="stale">Stale</option>
-            </select>
+            {(selectedCategory !== "all" ||
+              selectedPlatform !== "all" ||
+              selectedQuality !== "all" ||
+              Boolean(searchQuery.trim())) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory("all");
+                  setSelectedPlatform("all");
+                  setSelectedQuality("all");
+                  setSearchQuery("");
+                }}
+                className="px-2 py-1 rounded-lg bg-surface-elevated hover:bg-rose-500/10 text-content-muted hover:text-rose-500 border border-border-subtle hover:border-rose-500/30 text-[11px] font-semibold transition-all flex items-center gap-1"
+                title="Reset all filters"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
