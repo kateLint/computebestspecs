@@ -28,37 +28,57 @@ export async function POST(req: NextRequest) {
       osFamily: validated.hardware.os?.family,
     });
 
-    // 1. Fetch relevant software version records from DB
+    // 1. Fetch relevant software version records from DB (with resilient fallback to CANONICAL_SOFTWARE_CATALOG)
     const softwareIds = validated.workloads.map((w: any) => w.softwareId);
-    const softwareRecords = await prisma.software.findMany({
-      where: {
-        OR: [
-          { id: { in: softwareIds } },
-          { slug: { in: softwareIds } },
-        ],
-      },
-      include: {
-        versions: {
-          include: {
-            requirementProfiles: {
-              include: {
-                rules: true,
+    const parsedVersions: SoftwareVersion[] = [];
+
+    try {
+      const softwareRecords = await prisma.software.findMany({
+        where: {
+          OR: [
+            { id: { in: softwareIds } },
+            { slug: { in: softwareIds } },
+          ],
+        },
+        include: {
+          versions: {
+            include: {
+              requirementProfiles: {
+                include: {
+                  rules: true,
+                },
               },
+              workloads: true,
+              revisions: true,
             },
-            workloads: true,
-            revisions: true,
           },
         },
-      },
-    });
+      });
 
-    const parsedVersions: SoftwareVersion[] = [];
-    for (const sw of softwareRecords) {
-      for (const v of sw.versions) {
-        try {
-          parsedVersions.push(dbVersionToDomain(sw, v));
-        } catch (e) {
-          logger.warn("software_version_parse_warning", { softwareId: sw.id, versionId: v.id });
+      for (const sw of softwareRecords) {
+        for (const v of sw.versions) {
+          try {
+            parsedVersions.push(dbVersionToDomain(sw, v));
+          } catch (e) {
+            logger.warn("software_version_parse_warning", { softwareId: sw.id, versionId: v.id });
+          }
+        }
+      }
+    } catch (dbErr) {
+      logger.warn("database_fetch_fallback_to_canonical", { error: String(dbErr) });
+    }
+
+    // Fallback: If DB query failed or returned empty, populate from canonical software catalog
+    if (parsedVersions.length === 0) {
+      const { CANONICAL_SOFTWARE_CATALOG } = await import("@/lib/data/software-catalog");
+      const normalizedIds = new Set(softwareIds.map((id: string) => id.toLowerCase()));
+      for (const entry of CANONICAL_SOFTWARE_CATALOG) {
+        if (
+          normalizedIds.has(entry.software.id.toLowerCase()) ||
+          normalizedIds.has(entry.software.slug.toLowerCase()) ||
+          entry.software.aliases?.some((a) => normalizedIds.has(a.toLowerCase()))
+        ) {
+          parsedVersions.push(...entry.versions);
         }
       }
     }
@@ -71,24 +91,28 @@ export async function POST(req: NextRequest) {
       scenarioMode: validated.isSimultaneous ? "PEAK" : "TYPICAL",
     });
 
-    // 3. Save Immutable Evaluation Snapshot for Permalinks & Auditability
+    // 3. Save Immutable Evaluation Snapshot for Permalinks & Auditability (safe write)
     const publicId = `cbs_${nanoid(10)}`;
-    await prisma.evaluationSnapshot.create({
-      data: {
-        publicId,
-        evaluationFingerprint: result.meta.evaluationFingerprint,
-        inputSnapshot: JSON.stringify({
-          hardware: validated.hardware,
-          workloads: validated.workloads,
-          isSimultaneous: validated.isSimultaneous,
-        }),
-        requirementsSnapshot: JSON.stringify(parsedVersions),
-        resultSnapshot: JSON.stringify(result),
-        engineVersion: result.meta.engineVersion,
-        policyVersion: result.meta.policyVersion,
-        benchmarkDatasetVersion: result.meta.benchmarkDatasetVersion,
-      },
-    });
+    try {
+      await prisma.evaluationSnapshot.create({
+        data: {
+          publicId,
+          evaluationFingerprint: result.meta.evaluationFingerprint,
+          inputSnapshot: JSON.stringify({
+            hardware: validated.hardware,
+            workloads: validated.workloads,
+            isSimultaneous: validated.isSimultaneous,
+          }),
+          requirementsSnapshot: JSON.stringify(parsedVersions),
+          resultSnapshot: JSON.stringify(result),
+          engineVersion: result.meta.engineVersion,
+          policyVersion: result.meta.policyVersion,
+          benchmarkDatasetVersion: result.meta.benchmarkDatasetVersion,
+        },
+      });
+    } catch (snapshotErr) {
+      logger.warn("evaluation_snapshot_save_warning", { error: String(snapshotErr) });
+    }
 
     logger.info("compatibility_evaluation_completed", {
       publicId,
