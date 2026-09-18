@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { matchAlias } from "@/lib/normalization/normalizers";
+import { getClientIp, rateLimit, rateLimitResponseHeaders } from "@/lib/security/rate-limit";
 
 export async function GET(req: NextRequest) {
+  const rl = rateLimit(`hardware-search:${getClientIp(req)}`, { windowMs: 60_000, max: 60 });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many search requests. Please slow down." },
+      { status: 429, headers: rateLimitResponseHeaders(rl) }
+    );
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "all"; // "cpu", "gpu", "all"

@@ -121,6 +121,11 @@ export function Footer() {
               <span>Privacy</span>
             </Link>
             <span>•</span>
+            <Link href="/terms" className="hover:text-content-strong hover:underline flex items-center gap-1">
+              <FileText className="h-3 w-3" />
+              <span>Terms</span>
+            </Link>
+            <span>•</span>
             <button
               type="button"
               onClick={openPrivacySettings}

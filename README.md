@@ -1,6 +1,44 @@
 # ComputeBestSpecs — Workload Compatibility & Spec Recommendation Platform
 
+![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue?logo=typescript)
+![Prisma](https://img.shields.io/badge/Prisma-PostgreSQL-2D3748?logo=prisma)
+![License](https://img.shields.io/badge/license-proprietary-lightgrey)
+
 A production-ready web application and deterministic compatibility engine that performs bidirectional evaluation between PC hardware and multi-application software workflows.
+
+![ComputeBestSpecs hero](.github/assets/hero.png)
+
+---
+
+## See it in action
+
+Fill in a hardware profile, pick the apps you actually run at the same time, and get a bottleneck-aware compatibility score — not a naive `RAM >= minRam` check.
+
+![Check My Computer demo](.github/assets/demo.gif)
+
+<table>
+<tr>
+<td width="50%">
+
+**Bottleneck detection, not just pass/fail**
+
+Pinpoints the exact limiting resource (here: RAM under concurrent multitasking), the deficit, and the specific upgrade that clears it.
+
+![Bottleneck detection](.github/assets/check-bottleneck.png)
+
+</td>
+<td width="50%">
+
+**Local AI & LLM sizing**
+
+Exact transformer math: model weights, KV cache scaling (GQA/MLA/sliding window), quantization tradeoffs, and estimated tokens/sec — per GPU.
+
+![Local AI VRAM sizing](.github/assets/local-ai.png)
+
+</td>
+</tr>
+</table>
 
 ---
 
@@ -88,12 +126,13 @@ The application will be accessible at `http://localhost:3000`.
 
 ## 6. API Endpoints
 
-- `POST /api/compatibility/evaluate` — Evaluates PC against selected workloads; returns score, bottlenecks, upgrades, and public snapshot ID.
-- `POST /api/recommendations` — Generates 3-tier hardware recommendations for selected applications.
-- `GET /api/hardware/search?type=cpu|gpu&q={query}` — Autocomplete search across hardware catalog.
-- `GET /api/software/search?q={query}` — Software catalog and workload profile retrieval.
-- `GET /api/results/{publicId}` — Retrieves immutable saved evaluation snapshot.
+- `POST /api/compatibility/evaluate` — Evaluates PC against selected workloads; returns score, bottlenecks, upgrades, and public snapshot ID. Rate limited (20/min/IP).
+- `POST /api/recommendations` — Generates 3-tier hardware recommendations for selected applications. Rate limited (20/min/IP).
+- `GET /api/hardware/search?type=cpu|gpu&q={query}` — Autocomplete search across hardware catalog. Rate limited (60/min/IP).
+- `GET /api/software/search?q={query}` — Software catalog and workload profile retrieval. Rate limited (60/min/IP).
+- `GET /api/results/{publicId}` — Retrieves immutable saved evaluation snapshot. Rate limited (60/min/IP).
 - `GET /api/health` — System and database health status.
+- `GET /api/admin/metrics` — Dataset quality & calibration metrics. Requires HTTP Basic Auth (`ADMIN_PASSWORD`).
 
 ---
 
@@ -105,3 +144,11 @@ Software requirements are categorized by source:
 3. **Manual / Development Fixtures:** Explicitly tagged as `TEST_DATA_ONLY` or `fixture`.
 
 *Unverified / Manual Hardware:* If a user specifies custom hardware outside the catalog, the engine calculates estimates and transparently lowers confidence rating.
+
+---
+
+## 8. Legal
+
+- [Terms of Service](https://computebestspecs.vercel.app/terms)
+- [Privacy Policy](https://computebestspecs.vercel.app/privacy)
+- [LICENSE](./LICENSE) — proprietary, all rights reserved.

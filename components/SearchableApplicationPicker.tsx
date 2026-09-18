@@ -774,7 +774,7 @@ export function SearchableApplicationPicker({
               setActiveIndex(0);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Search 35+ apps (e.g. Unreal Engine, Photoshop, Ollama, Docker, Cyberpunk)..."
+            placeholder={`Search ${EXTENDED_APP_CATALOG.length} apps (e.g. Unreal Engine, Photoshop, Ollama, Docker, Cyberpunk)...`}
             className="w-full bg-transparent text-xs sm:text-sm text-content-strong placeholder:text-content-muted focus:outline-none"
           />
           {searchQuery && (

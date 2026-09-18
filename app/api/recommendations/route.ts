@@ -4,8 +4,17 @@ import { prisma } from "@/lib/db/prisma";
 import { recommendHardware } from "@/services/recommendations/recommendation-engine";
 import { SoftwareVersion } from "@/lib/domain/software";
 import { dbVersionToDomain } from "@/lib/data/catalog-helper";
+import { getClientIp, rateLimit, rateLimitResponseHeaders } from "@/lib/security/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(`recommendations:${getClientIp(req)}`, { windowMs: 60_000, max: 20 });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: { code: "RATE_LIMITED", message: "Too many requests. Please slow down." } },
+      { status: 429, headers: rateLimitResponseHeaders(rl) }
+    );
+  }
+
   try {
     const body = await req.json();
     const validated = RecommendationRequestSchema.parse(body);

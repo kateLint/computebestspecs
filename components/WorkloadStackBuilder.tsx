@@ -519,7 +519,7 @@ export function WorkloadStackBuilder({
             className="w-full py-3 rounded-2xl border-2 border-dashed border-border-strong hover:border-brand-primary hover:bg-surface-elevated text-content-body hover:text-content-strong text-xs font-bold flex items-center justify-center gap-2 transition-all touch-target shadow-xs"
           >
             <Plus className="h-4 w-4 text-brand-primary" />
-            <span>+ Add Software, Game, or Dev Tool (35+ Apps)</span>
+            <span>+ Add Software, Game, or Dev Tool ({EXTENDED_APP_CATALOG.length} Apps)</span>
           </button>
         ) : (
           <div className="relative mt-2">

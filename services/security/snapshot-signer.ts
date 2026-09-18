@@ -7,6 +7,24 @@ export interface SnapshotIntegrity {
   signedAt: string;
 }
 
+const PLACEHOLDER_SECRET = "cbs_signing_secret_dev_2026";
+
+// No fallback default on purpose: PLACEHOLDER_SECRET is publicly documented
+// in .env.example (and git history). Silently signing with it in production
+// would make every snapshot signature forgeable.
+function resolveSecretKey(explicit?: string): string {
+  const secret = explicit ?? process.env.RESULT_SIGNING_SECRET;
+  if (!secret) {
+    throw new Error("RESULT_SIGNING_SECRET is not set — cannot sign or verify snapshots");
+  }
+  if (secret === PLACEHOLDER_SECRET && process.env.NODE_ENV === "production") {
+    throw new Error(
+      "RESULT_SIGNING_SECRET is still set to the public .env.example placeholder in production — generate a real secret (e.g. `openssl rand -hex 32`)"
+    );
+  }
+  return secret;
+}
+
 /**
  * Deterministic Canonical Serialization
  * Recursively sorts all object keys to ensure identical representation across runtimes.
@@ -30,11 +48,11 @@ export function canonicalSerialize(obj: any): string {
 
 export function signEvaluationSnapshot(
   snapshotPayload: any,
-  secretKey: string = process.env.RESULT_SIGNING_SECRET || "cbs_signing_secret_dev_2026",
+  secretKey?: string,
   keyVersion: string = "v1"
 ): SnapshotIntegrity {
   const canonicalString = canonicalSerialize(snapshotPayload);
-  const signature = createHmac("sha256", secretKey)
+  const signature = createHmac("sha256", resolveSecretKey(secretKey))
     .update(canonicalString)
     .digest("hex");
 
@@ -49,14 +67,14 @@ export function signEvaluationSnapshot(
 export function verifySnapshotSignature(
   snapshotPayload: any,
   integrity: SnapshotIntegrity,
-  secretKey: string = process.env.RESULT_SIGNING_SECRET || "cbs_signing_secret_dev_2026"
+  secretKey?: string
 ): { isValid: boolean; reason?: string } {
   if (integrity.algorithm !== "HMAC-SHA256") {
     return { isValid: false, reason: "Unsupported signature algorithm" };
   }
 
   const canonicalString = canonicalSerialize(snapshotPayload);
-  const expectedSignature = createHmac("sha256", secretKey)
+  const expectedSignature = createHmac("sha256", resolveSecretKey(secretKey))
     .update(canonicalString)
     .digest("hex");
 
